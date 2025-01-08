@@ -1,0 +1,58 @@
+version: "3"
+services:
+  database:
+    image: "postgres:latest"
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    networks:
+      - network1
+    container_name: database
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+
+  backend:
+    networks:
+      - network1
+    build: ./backend
+    ports:
+      - "3001:3001"
+    container_name: backend
+    depends_on:
+      - database
+    environment:
+      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
+    volumes:
+      - ./backend:/app
+    env_file: ".env"
+
+  frontend:
+    networks:
+      - network1
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    container_name: frontend
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+
+  cors-anywhere-server:
+    networks:
+      - network1
+    build: ./cors-server
+    ports:
+      - "8080:8080"
+    container_name: cors-anywhere-server
+    environment:
+      - PORT=8080
+    volumes:
+      - ./cors-server:/app
+
+networks:
+  network1:
+    driver: bridge
