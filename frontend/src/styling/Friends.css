@@ -1,0 +1,42 @@
+.friends-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.friend-banner {
+  background-color: black;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 8px;
+  outline: 1px solid white;
+}
+
+.friend-username {
+  margin-bottom: 16px;
+  color: white;
+}
+
+.friend-games {
+  margin-top: 8px;
+  justify-content: space-evenly;
+}
+
+.see-more-container{
+  display: flex;
+  justify-content: end;
+}
+
+.see-more-button{
+  background-color: #bba769;
+  color: white;
+}
+
+.see-more-button:hover{
+  background-color: #8a7539;
+}
+
+.see-more-button.selected{
+  background-color: #8a7539;
+}

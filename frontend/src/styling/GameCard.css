@@ -1,0 +1,87 @@
+.root{
+    width: 100%;
+    background-color: black;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+    outline: 1px solid white;
+}
+
+.media-container{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  object-fit: contain;
+  margin-top: 20px;
+}
+
+.media{
+    max-height: 225px;
+    max-width: 100%
+}
+
+.expand{
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in-out;
+}
+
+.expandOpen {
+  transform: rotate(180deg);
+}
+
+.title{
+  text-align: center;
+}
+
+.text{
+  color: white;
+}
+
+.icon{
+  fill:white;
+}
+
+.chip{
+  color: white;
+}
+
+.bgg-link{
+  color: white;
+  font-size: medium;
+}
+
+.favorite-icon-button:hover{
+  scale: 1.15;
+}
+
+.favorite-icon{
+  fill:white
+}
+
+.favorite-icon.is-favorite{
+  fill: red;
+}
+
+.add-folder-icon-button{
+  margin-left: auto;
+}
+
+.add-folder-icon-button:hover{
+  scale: 1.15;
+}
+
+.add-folder-icon{
+  height: 20px;
+  color: white;
+}
+
+.meeple-icon{
+  height: 20px;
+  color: white;
+}
+
+.meeple-icon-button:hover{
+  scale: 1.15;
+}
+
+.grid-container-groups{
+  padding-left: 1px;
+}

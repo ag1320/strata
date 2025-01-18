@@ -1,0 +1,39 @@
+/* Teams.css */
+
+.team-box {
+  min-height: 200px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.team-box-single {
+  border: none;
+  background-color: transparent;
+}
+
+.team-box-cooperative {
+  background-color: #ffffff;
+}
+
+.player-chip {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  margin-right: 4px;
+  background-color: #bba769;
+  color: #000;
+  border: 1px solid #000;
+}
+
+
+.team-chip:hover {
+  background-color: #8a7539;
+}
+
+/* Chip style for cooperative game type */
+.cooperative-chip {
+  background-color: #bba769;
+  color: #000;
+  border: 1px solid #000;
+}

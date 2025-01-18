@@ -1,0 +1,13 @@
+.bgg-container{
+  margin-top: auto;
+  max-width: 100px;
+  contain: content;
+}
+
+.bgg-homepage-link{
+  width: 100%;
+}
+
+.bgg-homepage-graphic{
+  width: 100%;
+}

@@ -1,0 +1,36 @@
+.card{
+  width: 200px;
+  max-height: 200px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+  background-color: black;
+}
+
+.card-media{
+  object-fit: contain;
+  height: 100px;
+}
+
+.card-content{
+  text-align: center;
+  margin-top: 10px;
+}
+
+.grid-item-delete-mini-card{
+  position: absolute;
+}
+
+.mini-card-text{
+  color: white;
+}
+
+.delete-mini-card-icon{
+  margin-right: auto;
+}
+
+.delete-mini-card-icon-container{
+  width: 100%;
+  position: absolute;
+}

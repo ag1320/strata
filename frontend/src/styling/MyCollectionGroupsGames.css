@@ -1,0 +1,11 @@
+.grid-container-groups-games {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 10px;
+}
+
+.add-games-to-group-button{
+  background-color: #2F4858;
+  color: white;
+}

@@ -1,0 +1,42 @@
+.player-chip-winner {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  margin-right: 4px; /* Horizontal spacing */
+  background-color: #bba769;
+  color: #000;
+  border: 1px solid #000;
+}
+
+.winner-text{
+  text-align: center;
+  color: white;
+}
+
+.win-form {
+  color: white;
+}
+
+/* Thumb (ball) when the switch is checked */
+.win-switch .Mui-checked .MuiSwitch-thumb {
+  color: #bba769; /* Ball color when checked */
+}
+
+/* Track (slider) when the switch is checked */
+.win-switch .Mui-checked + .MuiSwitch-track {
+  background-color: #bba769; /* Slider color when checked */
+}
+
+/* Thumb (ball) when the switch is unchecked */
+.win-switch .MuiSwitch-thumb {
+  color: #f0f0f0; /* Ball color when unchecked */
+}
+
+/* Track (slider) when the switch is unchecked */
+.win-switch .MuiSwitch-track{
+  background-color: #888; /* Slider color when unchecked */
+}
+
+.winner-grid-item{
+  display: flex;
+  justify-content: center;
+}

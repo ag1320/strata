@@ -1,0 +1,8 @@
+.player-chip {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  margin-right: 4px;
+  background-color: #bba769;
+  color: #000;
+  border: 1px solid #000;
+}

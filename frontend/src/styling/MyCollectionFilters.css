@@ -1,0 +1,242 @@
+
+
+.grid-container-top {
+  width: 100%;
+  align-items: flex-end;
+}
+
+.filter-chips-container {
+  align-items: stretch;
+}
+
+.filter-chips-grid-item {
+  display: flex;
+}
+
+.open-filter-modal-chip,
+.clear-filters-chip {
+  display: flex;
+  color: white;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.tune-icon{
+  fill: white;
+}
+
+.ant-switch {
+  width: 28px;
+  height: 16px;
+  padding: 0;
+  display: flex;
+}
+
+.ant-switch:active .MuiSwitch-thumb {
+  width: 15px;
+}
+
+.ant-switch:active .MuiSwitch-switchBase.Mui-checked {
+  transform: translateX(9px);
+}
+
+.ant-switch .MuiSwitch-switchBase {
+  padding: 2px;
+}
+
+.ant-switch .MuiSwitch-switchBase.Mui-checked {
+  transform: translateX(12px);
+  color: #fff;
+}
+
+.ant-switch .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  opacity: 1;
+  background-color: #bba769; 
+}
+
+.ant-switch .MuiSwitch-thumb {
+  box-shadow: 0 2px 4px 0 rgba(0, 35, 11, 0.2);
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  transition: width 200ms;
+}
+
+.ant-switch .MuiSwitch-track {
+  border-radius: 8px;
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.25); /* Adjust based on theme */
+  box-sizing: border-box;
+}
+
+.custom-badge .MuiBadge-badge {
+  background-color: #bba769;
+  color: white; 
+}
+
+.search-container{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search {
+  display: flex;
+  position: relative;
+  border-radius: 6px;
+  background-color: #2F4858;
+  transition: background-color 0.3s;
+  margin-left: 0;
+  width: 70%;
+}
+
+.search:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.searchIcon {
+  margin-left: 8px;
+}
+
+.inputRoot {
+  display: flex;
+  flex: 1;
+  margin-right: 8px;
+  color: inherit;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.inputInput {
+  padding: 10px 10px 10px 10px;
+  transition: width 0.4s ease;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .inputInput {
+
+    width: 90%; 
+  }
+}
+
+.line {
+  width: 100%;
+  height: 2px;
+  color: white;
+  background-color: white;
+}
+
+.sort-box {
+  min-width: 200px;
+}
+
+.form-control {
+  width: 100%;
+}
+
+.input-label {
+  color: #252728;
+}
+
+.select {
+  color: #fff;
+  background-color: #252728;
+}
+
+.menu-item {
+  color: #fff;
+  background-color: #2F4858;
+}
+
+.menu-item:hover {
+  background-color: #252728;
+}
+
+.menu-item:focus{
+  background-color: #52758b;
+}
+
+.select .MuiSelect-select:focus {
+  background-color: #252728;
+}
+
+.MuiFormLabel-root{
+  color: white;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: #ffffff;
+}
+
+.MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
+  color: #ffffff;
+}
+
+.MuiList-root{
+  background-color: #2F4858;
+}
+
+.MuiFormLabel-root:focus{
+  color: white;
+}
+
+.select .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+.select:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+.select.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #fff; 
+}
+
+.MuiSvgIcon-root{
+  fill: white;
+}
+
+.favorite-filter-icon{
+  fill: white;
+}
+
+.favorite-filter-icon.clicked{
+  fill: red;
+}
+
+.sort-order-icon{
+  fill: white;
+}
+
+.randomize-dice {
+  display: inline-block;
+  transition: transform 0.5s;
+}
+
+.randomize-dice:hover {
+  animation: slowRotateCCW 10s linear infinite;
+}
+
+.randomize-dice:active {
+  animation: quickSpinCW 1.5s ease;
+}
+
+@keyframes slowRotateCCW {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Keyframes for click spin (CW) */
+@keyframes quickSpinCW {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(1080deg);
+  }
+}

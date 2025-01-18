@@ -1,0 +1,14 @@
+.show-more-forms {
+  width: 100%;
+  margin: 0 auto; /* Center the form */
+}
+
+.form-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.text-field {
+  margin-bottom: 16px;
+}

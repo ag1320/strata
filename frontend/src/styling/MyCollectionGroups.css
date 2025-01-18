@@ -1,0 +1,130 @@
+.my-collection-groups{
+  padding: 25px;
+  justify-content: center;
+}
+
+.grid-container-groups {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.grid-item-groups{
+  display: flex;
+  justify-content: flex-start;
+}
+
+
+.grid-item-groups-folders{
+  display: flex;
+  justify-content: flex-start;
+}
+
+
+.add-group-card{
+  background-color: #252728;
+  border: 6px solid white;
+  height: 150px;
+  width: 150px;
+}
+
+.group-card{
+  background-color: #252728;
+  height: 300px;
+  width: 300px;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.add-group-card:hover{
+  border: 6px solid #bba769;
+  scale: 1.05;
+}
+
+.add-group-card-content{
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+
+.add-group-icon{
+  fill: white;
+  width: 60%;
+  height: 60%;
+}
+
+.group-folder {
+  height: 200px;
+  width: 200px;
+  background-color: #252728;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+
+.group-folder-icon{
+  height: 100%;
+  width: 100%;
+  stroke: white;
+}
+
+.grid-item-groups:hover{
+  scale: 1.05;
+}
+
+.grid-item-groups-line{
+  display: flex;
+  justify-content: flex-start;
+}
+
+.grid-item-groups:hover .group-folder-icon{
+  stroke: #bba769;
+}
+
+.group-folder-text {
+  position: absolute;
+  color: white;
+  text-align: center;
+  max-width: 150px;
+}
+
+.line {
+  width: 100%;
+  height: 2px;
+  color: white;
+  background-color: white;
+  margin-top: 20px;
+}
+
+.add-group-textfield{
+  position: absolute;
+  padding-top: 15px;
+}
+
+.add-group-textfield .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: white;
+}
+
+.add-group-textfield .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white;
+}
+
+.add-group-textfield .MuiOutlinedInput-root .MuiOutlinedInput-input {
+  color: white;
+}
+
+.add-group-textfield .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input {
+  color: white;
+}
+
+.delete-edit-icon-container{
+  padding-top: 8px;
+}
+
+.group-folder-icon.selected{
+  stroke: #bba769;
+  fill: #444
+}

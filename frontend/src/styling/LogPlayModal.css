@@ -1,0 +1,208 @@
+.modal-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.modal{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box-log-play {
+  background-color: #2F4858;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 80%;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  justify-content: center;
+  display: flex;
+}
+
+.modal-content {
+  display: flex;
+  max-height: 100%;
+  width: 100%;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.grid-container{
+  display: flex;
+  justify-content: center;
+}
+
+.log-plays-content{
+  display: flex;
+  justify-content: center;
+  width: 95%;
+}
+
+
+.line {
+  width: 100%;
+  height: 2px;
+  color: white;
+  background-color: white;
+  margin: 0;
+}
+
+.line-container{
+  display: flex;
+  justify-content: center;
+}
+
+.line-dim{
+  width: 100%;
+  height: 1px;
+  color: #999;
+  background-color: #bbb;
+  margin: 0;
+}
+
+/* Change the outline of the box when focused */
+.modal .modal-box .modal-content .grid-container .Mui-focused .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white; 
+}
+
+/* Change the outline of the box when unfocused */
+.modal .modal-box .modal-content .grid-container .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white; 
+}
+
+/* Change the color of the text */
+.modal .modal-box .modal-content .grid-container .MuiOutlinedInput-input {
+  color: white
+}
+
+/* Optional: Change the label color */
+.modal .modal-box .modal-content .grid-container .MuiInputLabel-root {
+  color: white
+}
+
+/* Optional: Change the label color when focused */
+.modal .modal-box .modal-content .grid-container .Mui-focused .MuiInputLabel-root {
+  color: white
+}
+
+/* Targeting the select dropdown text color */
+.MuiSelect-select {
+  color: white; /* Change text color */
+}
+
+/* Targeting the select dropdown menu item text color */
+.MuiMenuItem-root {
+  color: white; /* Change menu item text color */
+}
+
+/* Optional: Change the select placeholder text color */
+.MuiInputLabel-root {
+  color: white; /* Change placeholder text color */
+}
+
+.log-play-title{
+  color: white;
+}
+
+.solo-error-chip{
+  background-color: pink;
+  color: red;
+  border: 2px solid red;
+}
+
+.error-icon{
+  fill: red;
+  stroke: red;
+  color: red;
+}
+
+.historic-form {
+  color: white;
+}
+
+/* Thumb (ball) when the switch is checked */
+.historic-switch .Mui-checked .MuiSwitch-thumb {
+  color: #bba769; /* Ball color when checked */
+}
+
+/* Track (slider) when the switch is checked */
+.historic-switch .Mui-checked + .MuiSwitch-track {
+  background-color: #bba769; /* Slider color when checked */
+}
+
+/* Thumb (ball) when the switch is unchecked */
+.historic-switch .MuiSwitch-thumb {
+  color: #f0f0f0; /* Ball color when unchecked */
+}
+
+/* Track (slider) when the switch is unchecked */
+.historic-switch .MuiSwitch-track{
+  background-color: #888; /* Slider color when unchecked */
+}
+
+
+.show-more-container {
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
+.toggle-button:focus {
+  outline: none;
+}
+
+.chevron {
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  margin-top: 20px;
+}
+
+.content.expanded {
+  max-height: 1000px; /* Adjust as necessary */
+  transition: max-height 0.3s ease;
+}
+
+.content.collapsed {
+  max-height: 0;
+}
+
+.plays-submit-button-container{
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+.plays-submit-button{
+  background-color: #bba769;
+  color: white;
+  margin-left: auto;
+  width: 30%;
+}

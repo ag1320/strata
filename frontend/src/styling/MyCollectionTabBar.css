@@ -1,0 +1,12 @@
+.my-collection-tab{
+  color: white;
+}
+
+.my-collection-tab-panel{
+  color: white;
+}
+
+.my-collection-tabs .MuiTabs-indicator{
+  background-color: #bba769;
+  height: 4px;
+}

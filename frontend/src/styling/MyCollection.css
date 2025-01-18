@@ -1,0 +1,100 @@
+.my-collection{
+  padding: 25px;
+  justify-content: center;
+}
+
+
+.grid-container-bottom {
+  padding-top: 10px;
+  width: 100%;
+}
+
+.grid-item {
+  display: flex;
+  justify-content: center;
+}
+
+.update-button{
+  background-color: #2F4858;
+  color: white;
+}
+
+.check-icon {
+  fill: green;
+}
+
+.exclamation-icon{
+  fill: red;
+}
+
+
+.sync-icon.syncing{
+  animation: rotate-ccw 2s linear infinite;
+}
+
+.fancy-button {
+  background-color: #2F4858; 
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-transform: none; /* Prevent all caps text */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Soft shadow */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.fancy-button:hover {
+  background-color: #3A6073; /* Slightly lighter shade for hover effect */
+  transform: translateY(-2px); /* Subtle lift on hover */
+}
+
+.fancy-button:active {
+  background-color: #1E3440; /* Darker shade for active effect */
+  transform: translateY(1px); /* Pressed down effect */
+}
+
+.plus-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-right: 0.5rem; /* Space between the icon and text */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.strata-logo-container{
+  display: flex;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+}
+
+.strata-logo-spinning{
+  animation: rotate-cw 3.5s linear infinite;
+}
+
+@keyframes rotate-ccw {
+  0% {
+    transform: rotate(0deg);
+
+  }
+  50% {
+    transform: rotate(-180deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes rotate-cw {
+  0% {
+    transform: rotate(0deg);
+
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

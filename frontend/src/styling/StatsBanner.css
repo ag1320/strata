@@ -1,0 +1,54 @@
+.stats-banner {
+  width: 100%;
+  background-color: black;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+  padding: 16px;
+  outline: 1px solid white;
+}
+
+.stats-section {
+  padding: 16px;
+  text-align: center;
+}
+
+.stats-title {
+  margin-bottom: 8px;
+}
+
+.game-details {
+  margin-top: 8px;
+}
+
+.game-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.game-toggle {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.chevron-container{
+  display: flex;
+  justify-content: center;
+}
+
+.total-plays-grid-item{
+  display: flex;
+  flex-direction: column;
+}
+
+.total-plays-container{
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.total-plays-num{
+  margin-bottom: 40px;
+}

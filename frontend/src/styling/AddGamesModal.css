@@ -1,0 +1,78 @@
+.modal-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.modal{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background-color: #2F4858;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80%;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  justify-content: center;
+  display: flex;
+}
+
+.modal-content {
+  display: flex;
+  max-height: 100%;
+  width: 100%;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.grid-container{
+  display: flex;
+  justify-content: center;
+}
+
+.add-games-title{
+  color: white;
+  text-align: center;
+}
+
+/* Change the outline of the box when focused */
+.modal .modal-box .modal-content .grid-container .Mui-focused .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white; 
+}
+
+/* Change the outline of the box when unfocused */
+.modal .modal-box .modal-content .grid-container .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white; 
+}
+
+/* Change the color of the text */
+.modal .modal-box .modal-content .grid-container .MuiOutlinedInput-input {
+  color: white
+}
+
+/* Optional: Change the label color */
+.modal .modal-box .modal-content .grid-container .MuiInputLabel-root {
+  color: white
+}
+
+/* Optional: Change the label color when focused */
+.modal .modal-box .modal-content .grid-container .Mui-focused .MuiInputLabel-root {
+  color: white
+}
+
+.line {
+  width: 100%;
+  height: 2px;
+  color: white;
+  background-color: white;
+  margin: 0;
+}

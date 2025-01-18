@@ -1,0 +1,78 @@
+.my-collection-plays {
+  padding: 25px;
+  justify-content: center;
+}
+
+.session-table {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.session-table .MuiTableCell-root {
+  color: white;
+}
+
+.grid-container-plays {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.grid-item-plays {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.plays-text {
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .session-table {
+    width: 100%;
+  }
+}
+
+.notes-and-delete-container{
+  margin-left: 200px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collapsed-table-container-players{
+  margin-left: 200px;
+  margin-top: 16px;
+}
+
+
+.plays-search-box{
+  width: 80%;
+}
+
+.plays-search-box-container{
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+.plays-media-container{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.plays-media{
+    max-height: 225px;
+    max-width: 100%
+}
+
+.delete-session-icon{
+  fill: black;
+  stroke-width: 2;
+  stroke: white;
+}
