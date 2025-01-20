@@ -423,6 +423,7 @@ const sanitizeFriendsData = (dirtyFriends) => {
   return sanitizedFriends;
 };
 
+
 //***************SANITIZE SESSION FOR STATS PAGES******************
 //SETUP
 //Sanitize the session data - group session by id,
@@ -444,6 +445,13 @@ const groupSessions = (sessionData) =>{
 
   const uniqueSessions = Object.values(groupedSessions);
   return uniqueSessions
+}
+
+const filterSessionsByPlayer = (uniqueSessions, selectedPlayer) =>{
+  const filteredSessions = uniqueSessions.filter((session) =>
+    session.players.some((player) => player.playerId === selectedPlayer.id)
+  );
+  return filteredSessions
 }
 
 const addGameToSessions = (uniqueSessions, myGames) => {
@@ -492,9 +500,7 @@ const getMostRecent= (uniqueSessions, myGames) =>{
       acc[game.id].push(session.date);
     }
     return acc;
-  }, {});
-
- 
+  }, {}); 
   
   const sortedGamesByDate = myGames
     .map((game) => {
@@ -508,6 +514,8 @@ const getMostRecent= (uniqueSessions, myGames) =>{
       };
     })
     .sort((a, b) => b.mostRecentDate - a.mostRecentDate);
+
+    
   
   const mostRecentlyPlayedGames = sortedGamesByDate.filter((game) => {
     const mostRecentPlayTimestamp =
@@ -586,18 +594,62 @@ const findGamesWithHighestWinPercentage = (filteredSessions, selectedPlayer) => 
   const maxWinPercentage = Math.max(...gameWinPercentages.map(game => game.winPercentage));
 
   // Filter games that have the highest win percentage
-  console.log("maxWiPercentage", maxWinPercentage)
-  console.log("gameWinPercentages", gameWinPercentages)
-
   if (maxWinPercentage === 0){
     return []
   }
   return gameWinPercentages.filter(game => game.winPercentage === maxWinPercentage);
 };
 
+const getPlayerStats = (uniqueSessions, player, myGames) =>{
+    let rowObj = {};
+    rowObj.id = player.id
+    // Find all the sessions for that player
+    const filteredSessions = filterSessionsByPlayer(uniqueSessions, player)
 
+    // Calculate top three games by the number of plays
+    const { mostPlayedGames, sortedGamesByNumPlays } = getMostPlayed(
+      filteredSessions,
+      myGames
+    );
+    rowObj.top_three_games_by_num_plays = JSON.stringify(
+      sortedGamesByNumPlays.slice(0, 3).map((game) => ({
+        name: game.name,
+        total_plays: game.totalPlays,
+      }))
+    );
 
+    // Calculate top three games by date
+    const { mostRecentlyPlayedGames, sortedGamesByDate } = getMostRecent(
+      filteredSessions,
+      myGames
+    );
+    rowObj.top_three_most_recent_games = JSON.stringify(
+      sortedGamesByDate.slice(0, 3).map((game) => ({
+        name: game.name,
+        most_recent_date: game.mostRecentDate,
+      }))
+    );
 
+    // Calculate the highest win percentage games
+    const highestWinPercentageGames = findGamesWithHighestWinPercentage(
+      filteredSessions,
+      player
+    );
+    rowObj.games_with_highest_win_percentage = JSON.stringify(
+      highestWinPercentageGames
+    );
+
+    // Calculate total wins, win percentage, and total plays
+    const { totalGames, totalWins, winPercentage } = calculateWinPercentage(
+      filteredSessions,
+      player
+    );
+    rowObj.total_wins = totalWins;
+    rowObj.win_percentage = winPercentage;
+    rowObj.total_plays = totalGames;
+
+    return rowObj
+}
 
 export {
   extractGameAttributes,
@@ -619,8 +671,12 @@ export {
   getMostPlayed,
   getMostRecent,
   sanitizeSessions,
+  addGameToSessions,
+  groupSessions,
+  filterSessionsByPlayer,
   calculateWinPercentage,
-  findGamesWithHighestWinPercentage
+  findGamesWithHighestWinPercentage,
+  getPlayerStats
 };
 
 // function getAttributes(obj, keyword) {

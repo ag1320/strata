@@ -1,8 +1,15 @@
 import axios from "axios";
-import { getGameIds, extractGameAttributes, removeLinks } from "./dataSanitization.js";
-import CONFIG from "../config.js"
+import {
+  getGameIds,
+  extractGameAttributes,
+  removeLinks,
+  groupSessions,
+  getPlayerStats,
+  addGameToSessions,
+} from "./dataSanitization.js";
+import CONFIG from "../config.js";
 
-const getDetailedGamesFromUsername = async (username) =>{
+const getDetailedGamesFromUsername = async (username) => {
   let statusCode = 202;
   let BGGGames = [];
   let detailedGames = [];
@@ -13,7 +20,11 @@ const getDetailedGamesFromUsername = async (username) =>{
   }
 
   if (BGGGames.length === 0) {
-    return {isError: true, errorMsg: "Error fetching collection from BGG", detailedGames: []};
+    return {
+      isError: true,
+      errorMsg: "Error fetching collection from BGG",
+      detailedGames: [],
+    };
   }
 
   //extract ids
@@ -23,7 +34,12 @@ const getDetailedGamesFromUsername = async (username) =>{
   detailedGames = await getSpecificGamesDetailed(gameIds);
 
   if (detailedGames.length === 0) {
-    return {isError: true, errorMsg: "Error fetching detailed games from BGG, check chunk size in server calls", detailedGames: []};
+    return {
+      isError: true,
+      errorMsg:
+        "Error fetching detailed games from BGG, check chunk size in server calls",
+      detailedGames: [],
+    };
   }
 
   //clean up the data
@@ -33,8 +49,8 @@ const getDetailedGamesFromUsername = async (username) =>{
     return game;
   });
 
-  return {isError: false, errorMsg: "", detailedGames};
-}
+  return { isError: false, errorMsg: "", detailedGames };
+};
 
 async function patchGameFavorite(game, favorite) {
   try {
@@ -105,8 +121,6 @@ async function getFriendsGames(friends) {
 
   return friendsCopy;
 }
-
-
 
 async function postGamesGroups(inputs) {
   let gameId = -1;
@@ -402,7 +416,10 @@ async function postNewSession(
   setSnackbarSuccess,
   handleClose,
   refreshSessions,
-  setRefreshSessions
+  setRefreshSessions,
+  myGames,
+  setPlayersRefresh,
+  playersRefresh
 ) {
   try {
     let payload = {
@@ -417,9 +434,13 @@ async function postNewSession(
       activePlayers,
     };
     await axios.post("http://localhost:3001/session", payload);
+    const res = await axios.get(`http://localhost:3001/session`);
+    const sessionData = res.data
+    await patchPlayerData(sessionData, activePlayers, myGames);
 
     setRefresh(!refresh);
-    setRefreshSessions(!refreshSessions)
+    setRefreshSessions(!refreshSessions);
+    setPlayersRefresh(!playersRefresh);
     setSnackbarSuccess(true);
     handleClose();
     return;
@@ -444,7 +465,10 @@ const deleteSession = async (
   refreshSessions,
   setRefreshSessions,
   setSnackbarSuccess,
-  setSnackbarError
+  setSnackbarError,
+  myGames,
+  setPlayersRefresh,
+  playersRefresh
 ) => {
   let payload = {
     params: {
@@ -452,26 +476,43 @@ const deleteSession = async (
     },
   };
   try {
-    await axios.delete("http://localhost:3001/session", payload);
+    const res = await axios.delete("http://localhost:3001/session", payload);
+    const playerData = res.data
+    const res2 = await axios.get(`http://localhost:3001/session`);
+    const sessionData = res2.data
+
+    await patchPlayerData(sessionData, playerData, myGames)
     setRefreshSessions(!refreshSessions);
-    setSnackbarSuccess(true)
+    setPlayersRefresh(!playersRefresh)
+    setSnackbarSuccess(true);
     return;
   } catch (err) {
     console.log(err);
-    setSnackbarError(true)
+    setSnackbarError(true);
     return;
   }
 };
 
-const patchPlayerData = async (playerData) =>{
+const patchPlayerData = async (sessionData, activePlayers, myGames) => {
   try {
-    await axios.patch("http://localhost:3001/db-players", playerData);
+    //group sessions and attach games to sessions
+    const uniqueSessions = groupSessions(sessionData);
+    addGameToSessions(uniqueSessions, myGames);
+    //post new player data for each players
+    for (const selectedPlayer of activePlayers) {
+      const playerData = getPlayerStats(
+        uniqueSessions,
+        selectedPlayer,
+        myGames
+      );
+      await axios.patch("http://localhost:3001/db-players", playerData);
+    }
     return;
   } catch (err) {
     console.log(err);
     return;
   }
-}
+};
 
 export {
   patchGameFavorite,
@@ -495,5 +536,5 @@ export {
   getFriends,
   getDetailedGamesFromUsername,
   getFriendsGames,
-  patchPlayerData
+  patchPlayerData,
 };

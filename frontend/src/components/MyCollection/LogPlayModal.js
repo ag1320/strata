@@ -51,6 +51,7 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
   let { refresh, setRefresh } = useContext(AppContext);
   let { setSnackbarError, setSnackbarSuccess } = useContext(AppContext);
   let { refreshSessions, setRefreshSessions} = useContext(AppContext)
+  let { playersRefresh, setPlayersRefresh} = useContext(AppContext)
 
   useEffect(() => {
     if (defaultSelectedGame) {
@@ -160,7 +161,10 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
       setSnackbarSuccess,
       handleCloseStates,
       refreshSessions,
-      setRefreshSessions
+      setRefreshSessions,
+      myGames,
+      setPlayersRefresh,
+      playersRefresh
     );
   };
 

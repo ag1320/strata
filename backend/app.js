@@ -30,6 +30,7 @@ const {
   postGamesGroups,
   deleteGamesGroups,
   getPlayers,
+  getPlayersByIds,
   postPlayer,
   postSession,
   postSessionPlayers,
@@ -461,7 +462,7 @@ app.post("/session", async (req, res) => {
       activePlayers
     );
     await postSessionPlayers(sessionId, activePlayers);
-
+    
     res.status(200).send("Session added successfully");
   } catch (err) {
     console.error(err);
@@ -481,13 +482,15 @@ app.get("/session", async (req, res) => {
 
 app.delete("/session", async (req, res) => {
   let { sessionId } = req.query;
-  deleteSession(sessionId)
-    .then(() => {
-      res.status(200).send();
-    })
-    .catch((error) => {
-      res.status(400).send(error);
-    });
+  try{
+    const playerIds = await deleteSession(sessionId)
+    const playerData = await getPlayersByIds(playerIds)
+
+    res.status(200).send(playerData);
+  }catch {
+
+    res.status(400).send(error);
+  }
 });
 
 const port = 3001;

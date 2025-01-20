@@ -34,6 +34,7 @@ const MyCollectionPlays = ({ handleLogPlayClick }) => {
   let { setSnackbarSuccess, setSnackbarError } = useContext(AppContext);
   let{defaultGameForPlaysTab} = useContext(AppContext)
   let {refreshSessions, setRefreshSessions} = useContext(AppContext)
+  let {playersRefresh, setPlayersRefresh} = useContext(AppContext)
   let {sessionData} = useContext(AppContext)
 
   let filteredSessions = [];
@@ -134,7 +135,10 @@ const MyCollectionPlays = ({ handleLogPlayClick }) => {
       refreshSessions,
       setRefreshSessions,
       setSnackbarSuccess,
-      setSnackbarError
+      setSnackbarError,
+      myGames,
+      setPlayersRefresh,
+      playersRefresh
     );
   };
 

@@ -1,120 +1,49 @@
-import { Card, Typography, Grid, Button } from "@mui/material";
+import {
+  Card,
+  Typography,
+  Grid,
+  List,
+  ListItemText,
+  ListItem,
+} from "@mui/material";
 import "../../styling/StatsPlayer.css";
 import StatsPlayerSelection from "./StatsPlayerSelection";
 import { useState, useEffect, useContext } from "react";
-import {
-  getMostPlayed,
-  getMostRecent,
-  calculateWinPercentage,
-  findGamesWithHighestWinPercentage,
-} from "../../helper-functions/dataSanitization";
+import { filterSessionsByPlayer } from "../../helper-functions/dataSanitization";
 import { AppContext } from "../../AppContext";
-import StatsGamesList from "./StatsGamesList";
-import { patchPlayerData } from "../../helper-functions/serverCalls";
 
 const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
   let [selectedPlayer, setSelectedPlayer] = useState(null);
-  let [filteredSessions, setFilteredSessions] = useState([]);
-  let { myGames, players } = useContext(AppContext);
-  const [mostPlayedGames, setMostPlayedGames] = useState([]);
-  const [sortedGamesByNumPlays, setSortedGamesByNumPlays] = useState([]);
-  const [mostRecentlyPlayedGames, setMostRecentlyPlayedGames] = useState([]);
-  const [sortedGamesByDate, setSortedGamesByDate] = useState([]);
-  const [winPercentage, setWinPercentage] = useState(0);
-  const [highestWinGames, setHighestWinGames] = useState([]);
+  //let [ filteredSessions, setFilteredSessions] = useState([]);
+  let { myGames } = useContext(AppContext);
 
   // Filter sessions based on selectedPlayer
-  useEffect(() => {
-    if (selectedPlayer) {
-      const filtered = uniqueSessions.filter((session) =>
-        session.players.some((player) => player.playerId === selectedPlayer.id)
-      );
-      setFilteredSessions(filtered);
-    } else {
-      // Reset filteredSessions if no player is selected
-      setFilteredSessions([]);
-    }
-  }, [selectedPlayer, uniqueSessions]);
+  //Might not need?
+  // useEffect(() => {
+  //   if (selectedPlayer) {
+  //     setFilteredSessions(
+  //       filterSessionsByPlayer(uniqueSessions, selectedPlayer)
+  //     );
+  //   } else {
+  //     // Reset filteredSessions if no player is selected
+  //     setFilteredSessions([]);
+  //   }
+  // }, [selectedPlayer, uniqueSessions]);
 
-  useEffect(() => {
-    if (filteredSessions.length > 0) {
-      const results = getMostPlayed(filteredSessions, myGames);
-      setMostPlayedGames(results.mostPlayedGames);
-      setSortedGamesByNumPlays(results.sortedGamesByNumPlays);
+  //BUGS I NEED TO FIX
+  //ADD A NEW SESSION WITH A NEW PLAYER
+  //IMMEDIATELY DELETE THAT SESSION
+  //THE SESSION IS DELETED, BUT THE PLAYER IS IN THE DB STILL
 
-      const results2 = getMostRecent(filteredSessions, myGames);
-      setMostRecentlyPlayedGames(results2.mostRecentlyPlayedGames);
-      setSortedGamesByDate(results2.sortedGamesByDate);
+  //2ND BUG
+  //0% WIN PERCENTAGE AND OTHER EMPTY THINGS NOT DISPLAYING CORRECTLY
 
-      const results3 = calculateWinPercentage(filteredSessions, selectedPlayer);
-      setWinPercentage(results3.winPercentage);
-      setHighestWinGames(
-        findGamesWithHighestWinPercentage(filteredSessions, selectedPlayer)
-      );
-    }
-  }, [filteredSessions]);
-
-  const handleExport = async () => {
-    let rows = [];
-    // Loop through each player
-    for (const selectedPlayer of players) {
-      let rowObj = {};
-      rowObj.id = selectedPlayer.id
-      // Find all the sessions for that player
-      const filtSessions = uniqueSessions.filter((session) =>
-        session.players.some((player) => player.playerId === selectedPlayer.id)
-      );
-  
-      // Calculate top three games by the number of plays
-      const { mostPlayedGames, sortedGamesByNumPlays } = getMostPlayed(
-        filtSessions,
-        myGames
-      );
-      rowObj.top_three_games_by_num_plays = JSON.stringify(
-        sortedGamesByNumPlays.slice(0, 3).map((game) => ({
-          name: game.name,
-          total_plays: game.totalPlays,
-        }))
-      );
-  
-      // Calculate top three games by date
-      const { mostRecentlyPlayedGames, sortedGamesByDate } = getMostRecent(
-        filtSessions,
-        myGames
-      );
-      rowObj.top_three_most_recent_games = JSON.stringify(
-        sortedGamesByDate.slice(0, 3).map((game) => ({
-          name: game.name,
-          most_recent_date: game.mostRecentDate,
-        }))
-      );
-  
-      // Calculate the highest win percentage games
-      const highestWinPercentageGames = findGamesWithHighestWinPercentage(
-        filtSessions,
-        selectedPlayer
-      );
-      rowObj.games_with_highest_win_percentage = JSON.stringify(
-        highestWinPercentageGames
-      );
-  
-      // Calculate total wins, win percentage, and total plays
-      const { totalGames, totalWins, winPercentage } = calculateWinPercentage(
-        filtSessions,
-        selectedPlayer
-      );
-      rowObj.total_wins = totalWins;
-      rowObj.win_percentage = winPercentage;
-      rowObj.total_plays = totalGames;
-  
-      // Await the postPlayerData call
-      await patchPlayerData(rowObj)
-    }
+  const handleGameClick = (gameName) => {
+    const selectedGame = myGames.find((game) => game.name === gameName);
+    handleSeePlays(selectedGame);
   };
 
-  console.log("players", players)
-  
-  
+  console.log("selectedPlayer", selectedPlayer);
 
   return (
     <Card className="stats-card">
@@ -125,49 +54,57 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
       />
       <Grid container spacing={1} className="player-stats-container">
         <Grid item xs={12}>
-          <Typography variant="h5">{`Total Plays: ${filteredSessions.length}`}</Typography>
+          <Typography variant="h5">{`Total Plays: ${selectedPlayer?.total_plays}`}</Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h5">{`Most Played: ${mostPlayedGames
-            .map((game) => game.name)
-            .join(", ")}`}</Typography>
+          <Typography variant="h5">Most Played:</Typography>
+          <List className="player-stats-list">
+            {selectedPlayer?.top_three_games_by_num_plays.map((game) => (
+              <ListItem
+                key={game.name}
+                onClick={() => handleGameClick(game.name)}
+                className="player-stats-list-item"
+              >
+                <ListItemText
+                  primary={`${game.name} (${game.total_plays})`}
+                  className="player-stats-list-item-text"
+                />
+              </ListItem>
+            ))}
+          </List>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h5">{`Most Recently Played: ${mostRecentlyPlayedGames
-            .map((game) => game.name)
-            .join(", ")}`}</Typography>
+          <Typography variant="h5">Most Recently Played:</Typography>
+          <List className="player-stats-list">
+            {selectedPlayer?.top_three_most_recent_games.map((game) => (
+              <ListItem
+                key={game.name}
+                className="player-stats-list-item"
+                onClick={() => handleGameClick(game.name)}
+              >
+                <ListItemText
+                  className="player-stats-list-item-text"
+                  primary={`${game.name} (${new Date(
+                    game.most_recent_date
+                  ).toLocaleDateString()})`}
+                />
+              </ListItem>
+            ))}
+          </List>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h5">{`Win Percentage: ${winPercentage}%`}</Typography>
+          <Typography variant="h5">{`Overall Win Percentage: ${selectedPlayer?.win_percentage}%`}</Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h5">{`Games With the Highest Win Percentage:`}</Typography>
+          <Typography variant="h5">{`Games With the Highest Win Percentage (${selectedPlayer?.games_with_highest_win_percentage[0].winPercentage}%):`}</Typography>
         </Grid>
-        {highestWinGames.map((game) => {
+        {selectedPlayer?.games_with_highest_win_percentage.map((game) => {
           return (
             <Grid item xs={12}>
               <Typography variant="h5">{`${game.name} - ${game.winPercentage}%`}</Typography>
             </Grid>
           );
         })}
-        <Grid item xs={6}>
-          <StatsGamesList
-            sortedGames={sortedGamesByNumPlays}
-            handleSeePlays={handleSeePlays}
-            title={"Most Played Games"}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <StatsGamesList
-            sortedGames={sortedGamesByDate}
-            handleSeePlays={handleSeePlays}
-            title={"Most Recently Played Games"}
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button onClick={handleExport}>export csv</Button>
-        </Grid>
       </Grid>
     </Card>
   );
