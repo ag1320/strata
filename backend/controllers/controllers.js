@@ -579,7 +579,7 @@ function postSession(
   let game_id = selectedGame.id;
   if (duration === 0 || duration === "") duration = null;
   if (notes === "") notes = null;
-  if (winner_score === 0 || winner_score === "") winner_score=null;
+  if (winner_score === 0 || winner_score === "") winner_score = null;
   let player_count = activePlayers.length;
 
   if (!(game_type === "cooperative" || game_type === "semi-cooperative")) {
@@ -595,20 +595,20 @@ function postSession(
       //is_historic,
       duration,
       winner_score,
-      player_count
+      player_count,
     })
     .returning("id")
     .then((result) => {
       const sessionId = result[0].id;
-      return sessionId; 
+      return sessionId;
     });
 }
 
 function postSessionPlayers(sessionId, activePlayers) {
-  const sessionPlayers = activePlayers.map(player => ({
+  const sessionPlayers = activePlayers.map((player) => ({
     session_id: sessionId,
-    player_id: player.id,  
-    is_winner: player.isWinner
+    player_id: player.id,
+    is_winner: player.isWinner,
   }));
 
   return knex("sessions_players").insert(sessionPlayers);
@@ -619,25 +619,27 @@ function getSessions() {
     .join("sessions_players", "sessions.id", "sessions_players.session_id") // Join sessions and sessions_players
     .join("players", "sessions_players.player_id", "players.id") // Join sessions_players and players
     .select(
-      "sessions.id AS session_id", 
-      "sessions.game_id", 
-      "sessions.game_type", 
-      "sessions.coop_did_win", 
-      "sessions.notes", 
-      "sessions.date", 
-      "sessions.is_historic", 
-      "sessions.duration", 
-      "sessions.winner_score", 
-      "sessions.player_count", 
-      "players.id AS player_id", 
-      "players.first_name", 
-      "players.last_name", 
+      "sessions.id AS session_id",
+      "sessions.game_id",
+      "sessions.game_type",
+      "sessions.coop_did_win",
+      "sessions.notes",
+      "sessions.date",
+      "sessions.is_historic",
+      "sessions.duration",
+      "sessions.winner_score",
+      "sessions.player_count",
+      "players.id AS player_id",
+      "players.first_name",
+      "players.last_name",
       "sessions_players.is_winner AS is_winner"
     )
     .then((data) => {
       const sessions = [];
-      data.forEach(row => {
-        let session = sessions.find(session => session.session_id === row.session_id);
+      data.forEach((row) => {
+        let session = sessions.find(
+          (session) => session.session_id === row.session_id
+        );
         if (!session) {
           session = {
             sessionId: row.session_id,
@@ -650,7 +652,7 @@ function getSessions() {
             duration: row.duration,
             winnerScore: row.winner_score,
             playerCount: row.player_count,
-            players: []
+            players: [],
           };
           sessions.push(session);
         }
@@ -658,14 +660,14 @@ function getSessions() {
           playerId: row.player_id,
           firstName: row.first_name,
           lastName: row.last_name,
-          isWinner: row.is_winner
+          isWinner: row.is_winner,
         });
       });
       return sessions;
     })
     .catch((err) => {
       console.error(err);
-      throw err; 
+      throw err;
     });
 }
 
@@ -673,6 +675,26 @@ function deleteSession(id) {
   return knex("sessions").delete().where({ id });
 }
 
+async function patchPlayer(
+  id,
+  top_three_games_by_num_plays,
+  top_three_most_recent_games,
+  games_with_highest_win_percentage,
+  total_wins,
+  win_percentage,
+  total_plays
+) {
+  return knex("players")
+    .where({ id })
+    .update({
+      top_three_games_by_num_plays,
+      top_three_most_recent_games,
+      games_with_highest_win_percentage,
+      total_wins,
+      win_percentage,
+      total_plays
+    });
+}
 
 module.exports = {
   postGame,
@@ -702,5 +724,6 @@ module.exports = {
   postSession,
   postSessionPlayers,
   getSessions,
-  deleteSession
+  deleteSession,
+  patchPlayer,
 };

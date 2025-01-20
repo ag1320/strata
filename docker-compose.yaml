@@ -4,6 +4,7 @@ services:
     image: "postgres:latest"
     volumes:
       - ./database:/var/lib/postgresql/data
+      - ./csv-data:/csv-data
     networks:
       - network1
     container_name: database

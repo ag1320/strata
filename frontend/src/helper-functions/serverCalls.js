@@ -463,6 +463,16 @@ const deleteSession = async (
   }
 };
 
+const patchPlayerData = async (playerData) =>{
+  try {
+    await axios.patch("http://localhost:3001/db-players", playerData);
+    return;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 export {
   patchGameFavorite,
   getHotGames,
@@ -484,5 +494,6 @@ export {
   deleteSession,
   getFriends,
   getDetailedGamesFromUsername,
-  getFriendsGames
+  getFriendsGames,
+  patchPlayerData
 };

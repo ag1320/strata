@@ -1,4 +1,4 @@
-import "../../styling/StatsMostPlayedGames.css";
+import "../../styling/StatsGamesList.css";
 import { Card, List, ListItem, ListItemText, Pagination } from "@mui/material";
 import { useState } from "react";
 
@@ -32,7 +32,7 @@ const StatsGamesList = ({ sortedGames, handleSeePlays, title }) => {
               />
             ) : (
               <ListItemText
-                primary={`${startIndex + index + 1} - ${game.name}: ${new Date(game.mostRecentDate).toLocaleDateString()}`}
+                primary={`${startIndex + index + 1} - ${game.name}: ${game.mostRecentDate? new Date(game.mostRecentDate).toLocaleDateString(): "Never"}`}
                 className="stats-most-played-list-text"
                 onClick={() => handleSeePlays(game)}
               />
