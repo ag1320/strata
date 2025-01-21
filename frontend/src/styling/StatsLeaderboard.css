@@ -12,6 +12,15 @@
   min-height: 400px;
 }
 
+.stats-title-leaderboard {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0px;
+  text-align: center;
+  color: #ffffff;
+}
+
+
 .stats-title-stack-container{
   display: flex;
   width: 100%;
@@ -29,20 +38,17 @@
   display: flex;
   align-items: center;
 }
+.player-stats-container{
+  margin-top: 10px;
+  height: 100%;
+  display: flex;
+}
 
-.stats-most-played-list{
+.leaderboard-stats-list{
   background-color: black;
 }
 
-.stats-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 16px;
-  text-align: center;
-  color: #ffffff;
-}
-
-.stats-most-played-list-item {
+.leaderboard-stats-list-item {
   display: flex;
   justify-content: space-between;
   padding: 8px 16px;
@@ -50,17 +56,13 @@
   color: white;
 }
 
-.stats-most-played-list-item:hover {
+.leaderboard-stats-list-item:hover {
   background-color: #333;
 }
 
-.stats-most-played-list-text {
+.leaderboard-stats-list-text {
   color: white;
 }
-
-
-.stats-pagination {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
+.MuiListItemText-secondary {
+  color: white;
 }

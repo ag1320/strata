@@ -713,6 +713,24 @@ async function deleteSession(id) {
   }
 }
 
+async function doesPlayerHaveSessions(playerId) {
+  try {
+    // Query the sessions_players table to check if the player has any sessions
+    const exists = await knex("sessions_players")
+      .select("session_id")
+      .where({ player_id: playerId })
+      .first();
+
+    return !!exists; // Return true if a session exists, false otherwise
+  } catch (error) {
+    console.error(`Error checking sessions for player with ID ${playerId}:`, error);
+    throw error;
+  }
+}
+
+function deletePlayer(id) {
+  return knex("players").delete().where({ id });
+}
 
 
 async function patchPlayer(
@@ -767,4 +785,6 @@ module.exports = {
   getSessions,
   deleteSession,
   patchPlayer,
+  doesPlayerHaveSessions,
+  deletePlayer
 };

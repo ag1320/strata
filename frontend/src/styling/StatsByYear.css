@@ -12,12 +12,30 @@
   min-height: 400px;
 }
 
-.stats-title {
+.stats-title-by-year {
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 16px;
+  margin-bottom: 0px;
   text-align: center;
   color: #ffffff;
+}
+
+.stats-title-stack-container{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-title-stack{
+  display: flex;
+  align-items: center;
+}
+
+.stats-games-icon-container{
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
 }
 
 .chart-container{

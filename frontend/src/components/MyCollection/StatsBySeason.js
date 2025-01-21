@@ -1,5 +1,5 @@
 import { Bar } from "react-chartjs-2";
-import { Card, Typography } from "@mui/material";
+import { Card, Typography, Stack } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import "../../styling/StatsBySeason.css";
+import WbSunnyIcon from "@mui/icons-material/WbSunny";
 
 // Register necessary chart.js components
 ChartJS.register(
@@ -86,7 +87,17 @@ const StatsBySeason = ({ uniqueSessions }) => {
 
   return (
     <Card className="stats-card">
-      <Typography className="stats-title">Total Plays Per Season</Typography>
+      <div className="stats-title-stack-container">
+        <Stack direction={"row"} className="stats-title-stack">
+          <div className="stats-games-icon-container">
+            <WbSunnyIcon />
+          </div>
+          <Typography className="stats-title-by-player">
+            Total Plays Per Season
+          </Typography>
+        </Stack>
+      </div>
+
       <div className="chart-container">
         <Bar data={chartData} options={chartOptions} />
       </div>

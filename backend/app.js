@@ -36,7 +36,9 @@ const {
   postSessionPlayers,
   getSessions,
   deleteSession,
-  patchPlayer
+  patchPlayer,
+  doesPlayerHaveSessions,
+  deletePlayer
 } = require("./controllers/controllers");
 
 //****************************
@@ -482,16 +484,25 @@ app.get("/session", async (req, res) => {
 
 app.delete("/session", async (req, res) => {
   let { sessionId } = req.query;
-  try{
-    const playerIds = await deleteSession(sessionId)
-    const playerData = await getPlayersByIds(playerIds)
+  try {
+    const playerIds = await deleteSession(sessionId);
 
+    for (const playerId of playerIds) {
+      const hasSessions = await doesPlayerHaveSessions(playerId);
+      if (!hasSessions) {
+        await deletePlayer(playerId);
+      }
+    }
+
+    const playerData = await getPlayersByIds(playerIds);
     res.status(200).send(playerData);
-  }catch {
-
+  } catch (error) {
+    console.error(error);
     res.status(400).send(error);
   }
 });
+
+
 
 const port = 3001;
 app.listen(port, () =>

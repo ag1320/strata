@@ -1,21 +1,20 @@
-import {
-  Card,
-  Typography,
-  Grid,
-  List,
-  ListItemText,
-  ListItem,
-} from "@mui/material";
+import { Card, Typography, Grid, Box, Stack } from "@mui/material";
 import "../../styling/StatsPlayer.css";
 import StatsPlayerSelection from "./StatsPlayerSelection";
 import { useState, useEffect, useContext } from "react";
 import { filterSessionsByPlayer } from "../../helper-functions/dataSanitization";
 import { AppContext } from "../../AppContext";
+import StatsHighestWinPercentageGames from "./StatsHighestWinPercentageGames";
+import StatsPlayerMost from "./StatsPlayerMost";
+import { PlayCircle, EmojiEvents } from "@mui/icons-material";
+import { patchPlayerData } from "../../helper-functions/serverCalls";
+import PersonIcon from "@mui/icons-material/Person";
 
 const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
   let [selectedPlayer, setSelectedPlayer] = useState(null);
   //let [ filteredSessions, setFilteredSessions] = useState([]);
   let { myGames } = useContext(AppContext);
+  const { sessionData, players } = useContext(AppContext);
 
   // Filter sessions based on selectedPlayer
   //Might not need?
@@ -30,81 +29,91 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
   //   }
   // }, [selectedPlayer, uniqueSessions]);
 
-  //BUGS I NEED TO FIX
-  //ADD A NEW SESSION WITH A NEW PLAYER
-  //IMMEDIATELY DELETE THAT SESSION
-  //THE SESSION IS DELETED, BUT THE PLAYER IS IN THE DB STILL
-
-  //2ND BUG
-  //0% WIN PERCENTAGE AND OTHER EMPTY THINGS NOT DISPLAYING CORRECTLY
-
   const handleGameClick = (gameName) => {
     const selectedGame = myGames.find((game) => game.name === gameName);
     handleSeePlays(selectedGame);
   };
 
-  console.log("selectedPlayer", selectedPlayer);
-
+  const winPercentage = selectedPlayer?.win_percentage || 0;
+  const totalPlays = selectedPlayer?.total_plays || 0;
   return (
     <Card className="stats-card">
-      <Typography className="stats-title">Player Stats</Typography>
+      <div className="stats-title-stack-container">
+        <Stack direction={"row"} className="stats-title-stack">
+          <div className="stats-games-icon-container">
+            <PersonIcon />
+          </div>
+          <Typography className="stats-title-by-season">
+            Player Stats
+          </Typography>
+        </Stack>
+      </div>
+
       <StatsPlayerSelection
         selectedPlayer={selectedPlayer}
         setSelectedPlayer={setSelectedPlayer}
       />
       <Grid container spacing={1} className="player-stats-container">
-        <Grid item xs={12}>
-          <Typography variant="h5">{`Total Plays: ${selectedPlayer?.total_plays}`}</Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5">Most Played:</Typography>
-          <List className="player-stats-list">
-            {selectedPlayer?.top_three_games_by_num_plays.map((game) => (
-              <ListItem
-                key={game.name}
-                onClick={() => handleGameClick(game.name)}
-                className="player-stats-list-item"
-              >
-                <ListItemText
-                  primary={`${game.name} (${game.total_plays})`}
-                  className="player-stats-list-item-text"
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5">Most Recently Played:</Typography>
-          <List className="player-stats-list">
-            {selectedPlayer?.top_three_most_recent_games.map((game) => (
-              <ListItem
-                key={game.name}
-                className="player-stats-list-item"
-                onClick={() => handleGameClick(game.name)}
-              >
-                <ListItemText
-                  className="player-stats-list-item-text"
-                  primary={`${game.name} (${new Date(
-                    game.most_recent_date
-                  ).toLocaleDateString()})`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5">{`Overall Win Percentage: ${selectedPlayer?.win_percentage}%`}</Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5">{`Games With the Highest Win Percentage (${selectedPlayer?.games_with_highest_win_percentage[0].winPercentage}%):`}</Typography>
-        </Grid>
-        {selectedPlayer?.games_with_highest_win_percentage.map((game) => {
-          return (
-            <Grid item xs={12}>
-              <Typography variant="h5">{`${game.name} - ${game.winPercentage}%`}</Typography>
+        {selectedPlayer ? (
+          <>
+            <Grid
+              container
+              spacing={2}
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* Total Plays Card */}
+              <Grid item xs={6}>
+                <Box className="player-stats-total-plays-card">
+                  <PlayCircle className="play-circle-icon" />
+                  <Typography variant="h5" fontWeight="bold">
+                    {`Total Plays: ${totalPlays}`}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Win Percentage Card */}
+              <Grid item xs={6}>
+                <Box className="player-stats-win-percentage-card">
+                  <EmojiEvents className="trophy-icon" />
+                  <Typography variant="h5" fontWeight="bold" color={"green"}>
+                    {`Overall Win Percentage: ${winPercentage}%`}
+                  </Typography>
+                </Box>
+              </Grid>
             </Grid>
-          );
-        })}
+
+            <Grid item xs={12}>
+              <div className="stats-line" />
+            </Grid>
+            <div className="player-stats-lists-container">
+              <Grid item xs={12}>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    {/*1st of 2 columns. most played and most recent*/}
+                    <StatsPlayerMost
+                      selectedPlayer={selectedPlayer}
+                      handleGameClick={handleGameClick}
+                    />
+                    {/*end 1st column*/}
+                  </Grid>
+                  <Grid item xs={6}>
+                    {/*2nd of 2 columns. highest win percentage games*/}
+                    <StatsHighestWinPercentageGames
+                      games={
+                        selectedPlayer?.games_with_highest_win_percentage || []
+                      }
+                      handleGameClick={handleGameClick}
+                    />
+                    {/*End 2nd column */}
+                  </Grid>
+                </Grid>
+              </Grid>
+            </div>
+          </>
+        ) : (
+          <>{/*no player selected */}</>
+        )}
       </Grid>
     </Card>
   );

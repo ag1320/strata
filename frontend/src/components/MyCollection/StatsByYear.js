@@ -1,5 +1,5 @@
 import { Bar } from "react-chartjs-2";
-import { Card, Typography } from "@mui/material";
+import { Card, Typography, Stack } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import "../../styling/StatsByYear.css";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
 // Register necessary chart.js components
 ChartJS.register(
@@ -72,7 +73,14 @@ const StatsByYear = ({ uniqueSessions }) => {
 
   return (
     <Card className="stats-card">
-      <Typography className="stats-title">Total Plays Per Year</Typography>
+      <div className="stats-title-stack-container">
+        <Stack direction={"row"} className="stats-title-stack">
+          <div className="stats-games-icon-container">
+            <CalendarMonthIcon/>
+          </div>
+          <Typography className="stats-title-by-year">Total Plays Per Year</Typography>
+        </Stack>
+      </div>
       <div className="chart-container">
         <Bar data={chartData} options={chartOptions} />
       </div>

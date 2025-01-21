@@ -468,7 +468,7 @@ const addGameToSessions = (uniqueSessions, myGames) => {
 
 // MOST PLAYED
 // Get the frequency of each game
-const getMostPlayed = (uniqueSessions, myGames) =>{
+const getMostPlayed = (uniqueSessions, myGames) => {
   const gameFrequency = uniqueSessions.reduce((acc, session) => {
     acc[session.gameId] = (acc[session.gameId] || 0) + 1;
     return acc;
@@ -480,6 +480,7 @@ const getMostPlayed = (uniqueSessions, myGames) =>{
       ...game,
       totalPlays: gameFrequency[game.id] || 0,
     }))
+    .filter((game) => game.totalPlays > 0)
     .sort((a, b) => b.totalPlays - a.totalPlays);
 
   // Find the most played game(s)
@@ -487,9 +488,11 @@ const getMostPlayed = (uniqueSessions, myGames) =>{
   const mostPlayedGames = sortedGamesByNumPlays.filter(
     (game) => game.totalPlays === maxPlays
   );
-  return {mostPlayedGames, sortedGamesByNumPlays}
-}
+
+  return { mostPlayedGames, sortedGamesByNumPlays };
+};
 // END MOST PLAYED
+
 
 // MOST RECENT PLAYS
 const getMostRecent= (uniqueSessions, myGames) =>{
@@ -503,17 +506,19 @@ const getMostRecent= (uniqueSessions, myGames) =>{
   }, {}); 
   
   const sortedGamesByDate = myGames
-    .map((game) => {
-      const dates = gameDates[game.id] || [];
-      const mostRecentDate = dates.length
-        ? new Date(Math.max(...dates.map((date) => new Date(date))))
-        : null;
-      return {
-        ...game,
-        mostRecentDate,
-      };
-    })
-    .sort((a, b) => b.mostRecentDate - a.mostRecentDate);
+  .map((game) => {
+    const dates = gameDates[game.id] || [];
+    const mostRecentDate = dates.length > 0
+      ? new Date(Math.max(...dates.map((date) => new Date(date))))
+      : null;
+    return {
+      ...game,
+      mostRecentDate,
+    };
+  })
+  .filter((game) => game.mostRecentDate)
+  .sort((a, b) => b.mostRecentDate - a.mostRecentDate);
+
 
     
   

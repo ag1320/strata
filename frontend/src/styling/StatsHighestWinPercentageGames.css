@@ -1,0 +1,31 @@
+.player-stats-list-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid #444;
+  color: white;
+}
+
+.player-stats-list-item:hover {
+  background-color: #333;
+}
+
+.player-stats-list-text {
+  color: white;
+}
+/* Style the active page */
+.MuiPaginationItem-root.Mui-selected {
+  background-color: #2F4858 ;
+  color: white ; 
+}
+
+/* Optional: Hover effect for other pages */
+.MuiPaginationItem-root:hover {
+  background-color: #e0e0e0; 
+}
+
+/* Style the inactive page numbers */
+.MuiPaginationItem-root {
+  background-color: transparent; /* No background for inactive pages */
+  color: rgb(120,120,120); /* Blue text for inactive pages */
+}

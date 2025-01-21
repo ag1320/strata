@@ -7,6 +7,7 @@ import StatsByYear from "./StatsByYear";
 import { sanitizeSessions } from "../../helper-functions/dataSanitization";
 import StatsBySeason from "./StatsBySeason";
 import StatsPlayer from "./StatsPlayer";
+import StatsLeaderboard from "./StatsLeaderboard";
 
 const MyCollectionStats = ({ handleSeePlays }) => {
   const { sessionData, myGames, players } = useContext(AppContext);
@@ -42,7 +43,7 @@ const MyCollectionStats = ({ handleSeePlays }) => {
           title={"Most Recently Played Games"}
         />
       </Grid>
-      <Grid item xs={12} md={6} lg={4}>
+      <Grid item xs={12} md={12} lg={4}>
         <StatsByYear uniqueSessions={uniqueSessions} />
       </Grid>
       <Grid item xs={12} lg={4}>
@@ -51,7 +52,7 @@ const MyCollectionStats = ({ handleSeePlays }) => {
             <StatsBySeason uniqueSessions={uniqueSessions} />
           </Grid>
           <Grid item xs={12}>
-            <StatsBySeason uniqueSessions={uniqueSessions} />
+          <StatsLeaderboard/>
           </Grid>
         </Grid>
       </Grid>
