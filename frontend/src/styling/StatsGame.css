@@ -1,0 +1,69 @@
+.stats-card {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7);
+  padding: 16px;
+  outline: 1px solid white;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.stats-title-stack-container{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-title-stack{
+  display: flex;
+  align-items: center;
+}
+
+.stats-games-icon-container{
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.stats-media-container{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.stats-media-container:hover{
+  cursor: pointer;
+}
+
+
+.stats-media{
+  max-height: 225px;
+  max-width: 100%
+}
+
+.game-stats-list{
+  background-color: black;
+}
+
+.game-stats-list-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid #444;
+  color: white;
+}
+
+.game-stats-list-item:hover {
+  background-color: #333;
+}
+
+.game-stats-list-text {
+  color: white;
+}

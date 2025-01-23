@@ -82,9 +82,16 @@
   margin: 0;
 }
 
+.stats-player-banner-container{
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
 /* Styling for the Total Plays card */
 .player-stats-total-plays-card {
   background-color: #2F4858; /* Light grey background */
+  width: 75%;
   padding: 16px; /* Padding */
   border-radius: 8px; /* Rounded corners */
   display: flex; /* Flexbox for centering */
@@ -97,6 +104,7 @@
 /* Styling for the Win Percentage card */
 .player-stats-win-percentage-card {
   background-color: #c8e6c9; /* Light green background */
+  width: 75%;
   padding: 16px; /* Padding */
   border-radius: 8px; /* Rounded corners */
   display: flex; /* Flexbox for centering */

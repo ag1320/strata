@@ -35,21 +35,22 @@ const StatsLeaderboard = () => {
 
   // Sort players based on the selected mode
   const getSortedPlayers = () => {
+    const limit = mode === "highestOverallWinPercentage" ? 30 : 10;
     switch (mode) {
       case "mostGamesPlayed":
         return [...players]
           .sort((a, b) => b.total_plays - a.total_plays)
-          .slice(0, 10);
+          .slice(0, limit);
       case "highestOverallWinPercentage":
         return [...players]
           .sort((a, b) => b.win_percentage - a.win_percentage)
-          .slice(0, 10);
+          .slice(0, limit);
       case "mostWins":
         return [...players]
           .sort((a, b) => b.total_wins - a.total_wins)
-          .slice(0, 10);
+          .slice(0, limit);
       default:
-        return players.slice(0, 10);
+        return players.slice(0, limit);
     }
   };
 
@@ -69,7 +70,7 @@ const StatsLeaderboard = () => {
       case "mostGamesPlayed":
         return "Total Plays";
       case "highestOverallWinPercentage":
-        return "Win Percentage";
+        return "Overall Win Percentage";
       case "mostWins":
         return "Total Wins";
       default:
@@ -100,7 +101,7 @@ const StatsLeaderboard = () => {
         >
           <MenuItem value="mostGamesPlayed">Most Games Played</MenuItem>
           <MenuItem value="highestOverallWinPercentage">
-            Highest Win Percentage
+            Highest Overall Win Percentage
           </MenuItem>
           <MenuItem value="mostWins">Most Wins</MenuItem>
         </Select>

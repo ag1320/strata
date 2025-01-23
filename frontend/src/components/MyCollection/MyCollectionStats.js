@@ -1,13 +1,14 @@
 import { useContext } from "react";
 import StatsBanner from "./StatsBanner";
 import { AppContext } from "../../AppContext";
-import {  Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import StatsGamesList from "./StatsGamesList";
 import StatsByYear from "./StatsByYear";
 import { sanitizeSessions } from "../../helper-functions/dataSanitization";
 import StatsBySeason from "./StatsBySeason";
 import StatsPlayer from "./StatsPlayer";
 import StatsLeaderboard from "./StatsLeaderboard";
+import StatsGame from "./StatsGame";
 
 const MyCollectionStats = ({ handleSeePlays }) => {
   const { sessionData, myGames, players } = useContext(AppContext);
@@ -18,7 +19,6 @@ const MyCollectionStats = ({ handleSeePlays }) => {
     mostRecentlyPlayedGames,
     sortedGamesByDate,
   } = sanitizeSessions(sessionData, myGames);
-
 
   return (
     <Grid container spacing={3}>
@@ -52,7 +52,7 @@ const MyCollectionStats = ({ handleSeePlays }) => {
             <StatsBySeason uniqueSessions={uniqueSessions} />
           </Grid>
           <Grid item xs={12}>
-          <StatsLeaderboard/>
+            <StatsLeaderboard />
           </Grid>
         </Grid>
       </Grid>
@@ -62,7 +62,14 @@ const MyCollectionStats = ({ handleSeePlays }) => {
           handleSeePlays={handleSeePlays}
         />
       </Grid>
-
+      <Grid item xs={12}>
+        <StatsGame
+          uniqueSessions={uniqueSessions}
+          sortedGamesByNumPlays={sortedGamesByNumPlays}
+          sortedGamesByDate={sortedGamesByDate}
+          handleSeePlays={handleSeePlays}
+        />
+      </Grid>
     </Grid>
   );
 };

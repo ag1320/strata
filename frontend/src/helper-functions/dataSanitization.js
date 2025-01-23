@@ -423,12 +423,11 @@ const sanitizeFriendsData = (dirtyFriends) => {
   return sanitizedFriends;
 };
 
-
 //***************SANITIZE SESSION FOR STATS PAGES******************
 //SETUP
 //Sanitize the session data - group session by id,
 //then attach the game obj to each session
-const groupSessions = (sessionData) =>{
+const groupSessions = (sessionData) => {
   const groupedSessions = sessionData.reduce((acc, session) => {
     if (!acc[session.sessionId]) {
       // If this sessionId is not already in the accumulator, initialize it
@@ -444,15 +443,15 @@ const groupSessions = (sessionData) =>{
   }, {});
 
   const uniqueSessions = Object.values(groupedSessions);
-  return uniqueSessions
-}
+  return uniqueSessions;
+};
 
-const filterSessionsByPlayer = (uniqueSessions, selectedPlayer) =>{
+const filterSessionsByPlayer = (uniqueSessions, selectedPlayer) => {
   const filteredSessions = uniqueSessions.filter((session) =>
     session.players.some((player) => player.playerId === selectedPlayer.id)
   );
-  return filteredSessions
-}
+  return filteredSessions;
+};
 
 const addGameToSessions = (uniqueSessions, myGames) => {
   const gameById = myGames.reduce((acc, game) => {
@@ -493,9 +492,8 @@ const getMostPlayed = (uniqueSessions, myGames) => {
 };
 // END MOST PLAYED
 
-
 // MOST RECENT PLAYS
-const getMostRecent= (uniqueSessions, myGames) =>{
+const getMostRecent = (uniqueSessions, myGames) => {
   const gameDates = uniqueSessions.reduce((acc, session) => {
     const game = session.game; // Already attached to session
     if (game) {
@@ -503,25 +501,23 @@ const getMostRecent= (uniqueSessions, myGames) =>{
       acc[game.id].push(session.date);
     }
     return acc;
-  }, {}); 
-  
+  }, {});
+
   const sortedGamesByDate = myGames
-  .map((game) => {
-    const dates = gameDates[game.id] || [];
-    const mostRecentDate = dates.length > 0
-      ? new Date(Math.max(...dates.map((date) => new Date(date))))
-      : null;
-    return {
-      ...game,
-      mostRecentDate,
-    };
-  })
-  .filter((game) => game.mostRecentDate)
-  .sort((a, b) => b.mostRecentDate - a.mostRecentDate);
+    .map((game) => {
+      const dates = gameDates[game.id] || [];
+      const mostRecentDate =
+        dates.length > 0
+          ? new Date(Math.max(...dates.map((date) => new Date(date))))
+          : null;
+      return {
+        ...game,
+        mostRecentDate,
+      };
+    })
+    .filter((game) => game.mostRecentDate)
+    .sort((a, b) => b.mostRecentDate - a.mostRecentDate);
 
-
-    
-  
   const mostRecentlyPlayedGames = sortedGamesByDate.filter((game) => {
     const mostRecentPlayTimestamp =
       sortedGamesByDate[0]?.mostRecentDate.getTime();
@@ -531,18 +527,29 @@ const getMostRecent= (uniqueSessions, myGames) =>{
       Math.floor(mostRecentPlayTimestamp / (1000 * 60 * 60 * 24))
     );
   });
-  return {mostRecentlyPlayedGames, sortedGamesByDate}
-}
+  return { mostRecentlyPlayedGames, sortedGamesByDate };
+};
 // END MOST RECENT PLAYS
 //***************END SANITIZE SESSION FOR STATS PAGES******************
 
-
 const sanitizeSessions = (sessionData, myGames) => {
-  const uniqueSessions = groupSessions(sessionData)
+  const uniqueSessions = groupSessions(sessionData);
   addGameToSessions(uniqueSessions, myGames);
-  const {mostPlayedGames, sortedGamesByNumPlays} = getMostPlayed(uniqueSessions, myGames)
-  const {mostRecentlyPlayedGames, sortedGamesByDate} = getMostRecent(uniqueSessions, myGames)
-  return {uniqueSessions, mostPlayedGames, sortedGamesByNumPlays, mostRecentlyPlayedGames, sortedGamesByDate}
+  const { mostPlayedGames, sortedGamesByNumPlays } = getMostPlayed(
+    uniqueSessions,
+    myGames
+  );
+  const { mostRecentlyPlayedGames, sortedGamesByDate } = getMostRecent(
+    uniqueSessions,
+    myGames
+  );
+  return {
+    uniqueSessions,
+    mostPlayedGames,
+    sortedGamesByNumPlays,
+    mostRecentlyPlayedGames,
+    sortedGamesByDate,
+  };
 };
 
 const calculateWinPercentage = (filteredSessions, selectedPlayer) => {
@@ -559,17 +566,22 @@ const calculateWinPercentage = (filteredSessions, selectedPlayer) => {
     return playerInSession?.isWinner ? wins + 1 : wins;
   }, 0);
 
-  const winPercentage = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+  const winPercentage =
+    totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
 
-  return {totalGames, totalWins, winPercentage}
+  return { totalGames, totalWins, winPercentage };
 };
 
-
-const findGamesWithHighestWinPercentage = (filteredSessions, selectedPlayer) => {
+const findGamesWithHighestWinPercentage = (
+  filteredSessions,
+  selectedPlayer
+) => {
   // Calculate win percentage for each game
   const gameStats = filteredSessions.reduce((acc, session) => {
     const { game, players } = session;
-    const playerData = players.find(player => player.playerId === selectedPlayer.id);
+    const playerData = players.find(
+      (player) => player.playerId === selectedPlayer.id
+    );
 
     if (playerData) {
       // Initialize game stats if not already present
@@ -587,74 +599,176 @@ const findGamesWithHighestWinPercentage = (filteredSessions, selectedPlayer) => 
     return acc;
   }, {});
 
-
   // Calculate win percentage and find the game(s) with the highest win percentage
-  const gameWinPercentages = Object.keys(gameStats).map(name => {
+  const gameWinPercentages = Object.keys(gameStats).map((name) => {
     const { wins, totalPlays } = gameStats[name];
-    const winPercentage = Number((totalPlays > 0 ? (wins / totalPlays) * 100 : 0).toFixed(0));
+    const winPercentage = Number(
+      (totalPlays > 0 ? (wins / totalPlays) * 100 : 0).toFixed(0)
+    );
     return { name, winPercentage };
   });
 
   // Find the maximum win percentage
-  const maxWinPercentage = Math.max(...gameWinPercentages.map(game => game.winPercentage));
+  const maxWinPercentage = Math.max(
+    ...gameWinPercentages.map((game) => game.winPercentage)
+  );
 
   // Filter games that have the highest win percentage
-  if (maxWinPercentage === 0){
-    return []
+  if (maxWinPercentage === 0) {
+    return [];
   }
-  return gameWinPercentages.filter(game => game.winPercentage === maxWinPercentage);
+  return gameWinPercentages.filter(
+    (game) => game.winPercentage === maxWinPercentage
+  );
 };
 
-const getPlayerStats = (uniqueSessions, player, myGames) =>{
-    let rowObj = {};
-    rowObj.id = player.id
-    // Find all the sessions for that player
-    const filteredSessions = filterSessionsByPlayer(uniqueSessions, player)
+const getPlayerStats = (uniqueSessions, player, myGames) => {
+  let rowObj = {};
+  rowObj.id = player.id;
+  // Find all the sessions for that player
+  const filteredSessions = filterSessionsByPlayer(uniqueSessions, player);
 
-    // Calculate top three games by the number of plays
-    const { mostPlayedGames, sortedGamesByNumPlays } = getMostPlayed(
-      filteredSessions,
-      myGames
-    );
-    rowObj.top_three_games_by_num_plays = JSON.stringify(
-      sortedGamesByNumPlays.slice(0, 3).map((game) => ({
-        name: game.name,
-        total_plays: game.totalPlays,
-      }))
-    );
+  // Calculate top three games by the number of plays
+  const { mostPlayedGames, sortedGamesByNumPlays } = getMostPlayed(
+    filteredSessions,
+    myGames
+  );
+  rowObj.top_three_games_by_num_plays = JSON.stringify(
+    sortedGamesByNumPlays.slice(0, 3).map((game) => ({
+      name: game.name,
+      total_plays: game.totalPlays,
+    }))
+  );
 
-    // Calculate top three games by date
-    const { mostRecentlyPlayedGames, sortedGamesByDate } = getMostRecent(
-      filteredSessions,
-      myGames
-    );
-    rowObj.top_three_most_recent_games = JSON.stringify(
-      sortedGamesByDate.slice(0, 3).map((game) => ({
-        name: game.name,
-        most_recent_date: game.mostRecentDate,
-      }))
-    );
+  // Calculate top three games by date
+  const { mostRecentlyPlayedGames, sortedGamesByDate } = getMostRecent(
+    filteredSessions,
+    myGames
+  );
+  rowObj.top_three_most_recent_games = JSON.stringify(
+    sortedGamesByDate.slice(0, 3).map((game) => ({
+      name: game.name,
+      most_recent_date: game.mostRecentDate,
+    }))
+  );
 
-    // Calculate the highest win percentage games
-    const highestWinPercentageGames = findGamesWithHighestWinPercentage(
-      filteredSessions,
-      player
-    );
-    rowObj.games_with_highest_win_percentage = JSON.stringify(
-      highestWinPercentageGames
-    );
+  // Calculate the highest win percentage games
+  const highestWinPercentageGames = findGamesWithHighestWinPercentage(
+    filteredSessions,
+    player
+  );
+  rowObj.games_with_highest_win_percentage = JSON.stringify(
+    highestWinPercentageGames
+  );
 
-    // Calculate total wins, win percentage, and total plays
-    const { totalGames, totalWins, winPercentage } = calculateWinPercentage(
-      filteredSessions,
-      player
-    );
-    rowObj.total_wins = totalWins;
-    rowObj.win_percentage = winPercentage;
-    rowObj.total_plays = totalGames;
+  // Calculate total wins, win percentage, and total plays
+  const { totalGames, totalWins, winPercentage } = calculateWinPercentage(
+    filteredSessions,
+    player
+  );
+  rowObj.total_wins = totalWins;
+  rowObj.win_percentage = winPercentage;
+  rowObj.total_plays = totalGames;
 
-    return rowObj
+  return rowObj;
+};
+
+const getSelectedGameSessions = (uniqueSessions, selectedGame) => {
+  const selectedGameSessions = uniqueSessions.filter((session) => {
+    return session.game.id === selectedGame.id;
+  });
+  return selectedGameSessions;
+};
+
+const getTopPlayersByNumPlays = (selectedGameSessions, players) => {
+  // Array of arrays of players
+  const selectedGameSessionsPlayers = selectedGameSessions.map(
+    (gameSession) => gameSession.players
+  );
+  const selectedGameSessionsPlayersFlatten = selectedGameSessionsPlayers.flat();
+
+  // Get frequency of each player
+  const playerFrequency = selectedGameSessionsPlayersFlatten.reduce(
+    (acc, session) => {
+      acc[session.playerId] = (acc[session.playerId] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  // Get top 3 player IDs
+  const topPlayerIds = Object.entries(playerFrequency)
+    .sort(([, freqA], [, freqB]) => freqB - freqA)
+    .slice(0, 3)
+    .map(([playerId]) => playerId);
+
+  // Get top players with numPlays property
+  const topPlayers = topPlayerIds.map((playerId) => {
+    const player = players.find((player) => player.id == playerId);
+    return { ...player, numPlays: playerFrequency[playerId] }; // Add numPlays
+  });
+
+  return topPlayers;
+};
+
+
+const getSelectedGameMostRecentDateString = (
+  sortedGamesByDate,
+  selectedGame
+) => {
+  const mostRecentDate = sortedGamesByDate.find(
+    (game) => game.id === selectedGame.id
+  )?.mostRecentDate;
+  const mostRecentDateString = mostRecentDate
+    ? new Date(mostRecentDate).toLocaleDateString()
+    : null;
+
+  return mostRecentDateString || null;
+};
+
+const getSelectedGameNumPlays = (sortedGamesByNumPlays, selectedGame) =>{
+  const numPlays = sortedGamesByNumPlays.find(
+    (game) => game.id === selectedGame.id
+  )?.totalPlays;
+
+  return numPlays || null
 }
+
+const getWinnerScoreMetrics = (selectedGameSessions) => {
+  // Filter out 0, null, or undefined winner scores
+  const winnerScores = selectedGameSessions
+    .map((gameSession) => gameSession.winnerScore)
+    .filter((score) => score !== 0 && score !== null && score !== undefined);
+
+  if (winnerScores.length === 0) {
+    return {
+      maxWinnerScore: null,
+      minWinnerScore: null,
+      meanWinnerScore: null,
+      medianWinnerScore: null,
+    };
+  }
+
+  const maxWinnerScore = Math.max(...winnerScores);
+  const minWinnerScore = Math.min(...winnerScores);
+
+  // Calculate mean (average)
+  const meanWinnerScore = Math.floor(
+    winnerScores.reduce((sum, score) => sum + score, 0) / winnerScores.length
+  );
+
+  // Calculate median
+  const sortedScores = [...winnerScores].sort((a, b) => a - b);
+  const midIndex = Math.floor(sortedScores.length / 2);
+  const medianWinnerScore =
+    sortedScores.length % 2 === 0
+      ? Math.floor((sortedScores[midIndex - 1] + sortedScores[midIndex]) / 2)
+      : sortedScores[midIndex];
+
+  return { maxWinnerScore, minWinnerScore, meanWinnerScore, medianWinnerScore };
+};
+
+
 
 export {
   extractGameAttributes,
@@ -681,7 +795,12 @@ export {
   filterSessionsByPlayer,
   calculateWinPercentage,
   findGamesWithHighestWinPercentage,
-  getPlayerStats
+  getPlayerStats,
+  getSelectedGameSessions,
+  getTopPlayersByNumPlays,
+  getSelectedGameMostRecentDateString,
+  getSelectedGameNumPlays,
+  getWinnerScoreMetrics
 };
 
 // function getAttributes(obj, keyword) {

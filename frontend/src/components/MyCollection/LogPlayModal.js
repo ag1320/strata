@@ -24,9 +24,9 @@ import Winner from "./Winner";
 import ShowMoreForms from "./ShowMoreForms";
 import { postNewSession } from "../../helper-functions/serverCalls";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import enUS from 'date-fns/locale/en-US';
-
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import enUS from "date-fns/locale/en-US";
+import GameAutocomplete from "./GameAutocomplete";
 
 const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
   let [selectedGame, setSelectedGame] = useState(null);
@@ -50,31 +50,37 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
   let { myGames } = useContext(AppContext);
   let { refresh, setRefresh } = useContext(AppContext);
   let { setSnackbarError, setSnackbarSuccess } = useContext(AppContext);
-  let { refreshSessions, setRefreshSessions} = useContext(AppContext)
-  let { playersRefresh, setPlayersRefresh} = useContext(AppContext)
+  let { refreshSessions, setRefreshSessions } = useContext(AppContext);
+  let { playersRefresh, setPlayersRefresh } = useContext(AppContext);
 
-  useEffect(() => {
-    if (defaultSelectedGame) {
-      setSelectedGame(defaultSelectedGame);
-      setInputValue(defaultSelectedGame.name);
-    }
-  }, [defaultSelectedGame]);
+  // useEffect(() => {
+  //   if (defaultSelectedGame) {
+  //     setSelectedGame(defaultSelectedGame);
+  //     setInputValue(defaultSelectedGame.name);
+  //   }
+  // }, [defaultSelectedGame]);
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Tab") {
-      const closestOption = myGames.find((game) =>
-        game.name.toLowerCase().includes(inputValue.toLowerCase())
-      );
-      if (closestOption) {
-        setSelectedGame(closestOption);
-        setInputValue(closestOption.name);
-      }
-    }
-    if (event.key === "Enter") {
-      event.preventDefault();
-      console.log(`you selected ${selectedGame.name}`);
-    }
-  };
+  // const handleKeyDown = (event) => {
+  //   if (event.key === "Tab") {
+  //     event.preventDefault();
+  //     const closestOption = myGames.find((game) =>
+  //       game.name.toLowerCase().includes(inputValue.toLowerCase())
+  //     );
+  //     if (closestOption) {
+  //       setSelectedGame(closestOption);
+  //       setInputValue(closestOption.name);
+  //     }
+  //   }
+  //   if (event.key === "Enter") {
+  //     event.preventDefault();
+  //     console.log(`you selected ${selectedGame.name}`);
+  //   }
+  // };
+
+  // const handleFocus = () =>{
+  //   setSelectedGame({})
+  //   setInputValue("")
+  // }
 
   const handleGameTypeChange = (event) => {
     setGameType(event.target.value);
@@ -219,7 +225,7 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Autocomplete
+                  {/* <Autocomplete
                     freeSolo
                     autoFocus
                     options={myGames.map((game) => game.name)}
@@ -239,8 +245,16 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
                         label="Select a Game"
                         variant="outlined"
                         onKeyDown={(e) => handleKeyDown(e)}
+                        onFocus = {handleFocus}
                       />
                     )}
+                  /> */}
+                  <GameAutocomplete
+                    defaultSelectedGame={defaultSelectedGame}
+                    selectedGame={selectedGame}
+                    setSelectedGame={setSelectedGame}
+                    inputValue={inputValue}
+                    setInputValue={setInputValue}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -254,7 +268,10 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enUS}>
+                  <LocalizationProvider
+                    dateAdapter={AdapterDateFns}
+                    adapterLocale={enUS}
+                  >
                     <DatePicker
                       label="Select Date"
                       views={["year", "month", "day"]}
@@ -384,7 +401,7 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
                     label={isHistoric ? "Yes" : "No"}
                   />
                 </Grid> */}
- 
+
                 <Grid item xs={12}>
                   <div className="line-container">
                     <div className="line-dim" />

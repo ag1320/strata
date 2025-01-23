@@ -63,7 +63,7 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
               alignItems="center"
             >
               {/* Total Plays Card */}
-              <Grid item xs={6}>
+              <Grid item xs={12} className="stats-player-banner-container">
                 <Box className="player-stats-total-plays-card">
                   <PlayCircle className="play-circle-icon" />
                   <Typography variant="h5" fontWeight="bold">
@@ -73,7 +73,7 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
               </Grid>
 
               {/* Win Percentage Card */}
-              <Grid item xs={6}>
+              <Grid item xs={12} className="stats-player-banner-container">
                 <Box className="player-stats-win-percentage-card">
                   <EmojiEvents className="trophy-icon" />
                   <Typography variant="h5" fontWeight="bold" color={"green"}>
