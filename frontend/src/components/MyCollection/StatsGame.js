@@ -12,12 +12,6 @@ import {
   getWinnerScoreMetrics,
 } from "../../helper-functions/dataSanitization";
 
-//top three players by number of plays
-//scores
-//  highest - name
-//  average
-//  lowest - name
-
 const StatsGame = ({
   uniqueSessions,
   sortedGamesByNumPlays,

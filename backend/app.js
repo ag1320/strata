@@ -1,4 +1,5 @@
 //npm install express pg knex morgan cors axios xml2js
+require("dotenv").config({ path: "../.env" });
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
@@ -38,13 +39,14 @@ const {
   deleteSession,
   patchPlayer,
   doesPlayerHaveSessions,
-  deletePlayer
+  deletePlayer,
 } = require("./controllers/controllers");
 
 //****************************
 //        SERVER SETUP
 //****************************
 const parser = new xml2js.Parser();
+
 app.use(
   cors({
     origin: "*",
@@ -67,6 +69,7 @@ const headers = {
     Origin: "http://localhost:3000",
     "User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    Authorization: `Bearer ${process.env.BGG_API_KEY}`,
   },
 };
 
@@ -145,7 +148,9 @@ app.get("/user-games", (req, res) => {
       }
     })
     .catch((error) => {
-      console.error("Error fetching data from BGG:", error);
+      console.error("STATUS:", error.response?.status);
+      console.error("HEADERS:", error.response?.headers);
+      console.error("DATA:", error.response?.data);
       res.status(500).send("Error fetching data from BGG");
     });
 });
@@ -464,7 +469,7 @@ app.post("/session", async (req, res) => {
       activePlayers
     );
     await postSessionPlayers(sessionId, activePlayers);
-    
+
     res.status(200).send("Session added successfully");
   } catch (err) {
     console.error(err);
@@ -501,8 +506,6 @@ app.delete("/session", async (req, res) => {
     res.status(400).send(error);
   }
 });
-
-
 
 const port = 3001;
 app.listen(port, () =>
