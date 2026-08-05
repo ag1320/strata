@@ -120,6 +120,7 @@ const Players = ({ activePlayers, setActivePlayers, gameType, handleDeletePlayer
             newPlayerObj.name = `${newlyAddedPlayer.first_name} ${newlyAddedPlayer.last_name}`;
             newPlayerObj.isWinner = false;
 
+            setNewPlayer({ ...newPlayerObj });
             setActivePlayers([...activePlayers, newPlayerObj]);
           }
         } catch {

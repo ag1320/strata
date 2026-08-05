@@ -126,6 +126,8 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
     setGameType("competitive");
     setSelectedDate(new Date());
     setActivePlayers([]);
+    setDeletedPlayerId(-1);
+    setNewPlayer({});
     //setIsHistoric(true);
     setIsShowMoreExpanded(true);
     setCoopDidWin(false);
@@ -136,7 +138,10 @@ const LogPlayModal = ({ open, handleClose, defaultSelectedGame }) => {
   };
 
   const handleSubmit = () => {
-    if (gameType === "cooperative" && !coopDidWin) {
+    if (
+      (gameType === "cooperative" || gameType === "semi-cooperative") &&
+      !coopDidWin
+    ) {
       setAllActivePlayersAsNotWinner();
     }
 

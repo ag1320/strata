@@ -54,10 +54,12 @@ const Winner = ({
   const handleCoopToggleChange = (event) => {
     setCoopDidWin(event.target.checked);
 
-    if (gameType === "cooperative") {
-      if (event.target.checked) {
+    if (event.target.checked) {
+      if (gameType === "cooperative") {
         setAllActivePlayersAsWinner();
-      } else {
+      }
+    } else {
+      if (gameType === "cooperative" || gameType === "semi-cooperative") {
         setAllActivePlayersAsNotWinner();
       }
     }
@@ -103,7 +105,11 @@ const Winner = ({
                 onChange={handlePlayerChange}
               >
                 {activePlayers.map((player) => {
-                  return <MenuItem value={player.id}>{player.name}</MenuItem>;
+                  return (
+                    <MenuItem key={player.id} value={player.id}>
+                      {player.name}
+                    </MenuItem>
+                  );
                 })}
               </Select>
             </FormControl>
@@ -172,7 +178,9 @@ const Winner = ({
                   >
                     {activePlayers.map((player) => {
                       return (
-                        <MenuItem value={player.id}>{player.name}</MenuItem>
+                        <MenuItem key={player.id} value={player.id}>
+                          {player.name}
+                        </MenuItem>
                       );
                     })}
                   </Select>
