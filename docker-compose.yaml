@@ -42,18 +42,6 @@ services:
     volumes:
       - ./frontend:/app
 
-  cors-anywhere-server:
-    networks:
-      - network1
-    build: ./cors-server
-    ports:
-      - "8080:8080"
-    container_name: cors-anywhere-server
-    environment:
-      - PORT=8080
-    volumes:
-      - ./cors-server:/app
-
 networks:
   network1:
     driver: bridge

@@ -1,7 +1,8 @@
 import Navbar from "./components/Navbar";
 import Home from "./components/Home.js";
 import MyCollectionTabBar from "./components/MyCollection/MyCollectionTabBar.js";
-import Friends from "./components/Friends/Friends.js"
+import Friends from "./components/Friends/Friends.js";
+import Wishlist from "./components/Wishlist/Wishlist.js";
 import AppSnackbar from "./components/AppSnackbar.js"
 
 import logoText from "./images/strata-logo-and-text.png";
@@ -62,6 +63,7 @@ function App() {
           <Routes>
             <Route path="/collection" element={<MyCollectionTabBar/>} />
             <Route path="/friends" element={<Friends/>}/>
+            <Route path="/wishlist" element={<Wishlist/>}/>
             <Route path="/" element={<Home/>} />
           </Routes>
         </Main>

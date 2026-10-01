@@ -6,6 +6,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HomeIcon from "@mui/icons-material/Home";
 import CasinoIcon from "@mui/icons-material/Casino";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 import logo from "../images/strata-logo.png";
 import MeepleIcon from "../images/Meeple";
 import "../styling/Navbar.css";
@@ -134,6 +135,18 @@ export default function Navbar({
                 <CasinoIcon style={{ fill: "white" }} />
               </ListItemIcon>
               <ListItemText primary="My Collection" />
+            </ListItem>
+          </Link>
+          <Link
+            to="/wishlist"
+            onClick={handleDrawerClose}
+            style={{ textDecoration: "none", color: "white" }}
+          >
+            <ListItem button>
+              <ListItemIcon>
+                <BookmarkIcon style={{ fill: "white" }} />
+              </ListItemIcon>
+              <ListItemText primary="Wishlist" />
             </ListItem>
           </Link>
         </List>

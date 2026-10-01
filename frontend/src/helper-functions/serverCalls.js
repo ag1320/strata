@@ -514,6 +514,35 @@ const patchPlayerData = async (sessionData, activePlayers, myGames) => {
   }
 };
 
+async function getWishlist() {
+  let statusCode = 202;
+  let items = [];
+
+  while (statusCode === 202) {
+    try {
+      const res = await axios.get("http://localhost:3001/user-wishlist", {
+        params: { username: CONFIG.BGG_USERNAME },
+      });
+      statusCode = res.status;
+      if (statusCode === 200) {
+        items = res.data?.items?.item || [];
+      }
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
+  }
+
+  return items.map((item) => ({
+    id: item.$.objectid,
+    name: item.name?.[0]?._ || "",
+    image: item.image?.[0] || item.thumbnail?.[0] || "",
+    thumbnail: item.thumbnail?.[0] || item.image?.[0] || "",
+    url: "https://boardgamegeek.com/boardgame/" + item.$.objectid,
+    comment: item.comment?.[0] || "",
+  }));
+}
+
 export {
   patchGameFavorite,
   getHotGames,
@@ -537,4 +566,5 @@ export {
   getDetailedGamesFromUsername,
   getFriendsGames,
   patchPlayerData,
+  getWishlist,
 };

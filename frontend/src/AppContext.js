@@ -19,6 +19,8 @@ function AppProvider({ children }) {
   const [defaultGameForPlaysTab, setDefaultGameForPlaysTab] = useState({});
   const [refreshSessions, setRefreshSessions] = useState(false);
   const [sessionData, setSessionData] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistRefresh, setWishlistRefresh] = useState(false);
 
   const valueObj = useMemo(
     () => ({
@@ -49,7 +51,11 @@ function AppProvider({ children }) {
       refreshSessions,
       setRefreshSessions,
       sessionData,
-      setSessionData
+      setSessionData,
+      wishlist,
+      setWishlist,
+      wishlistRefresh,
+      setWishlistRefresh,
     }),
     [
       hotGames,
@@ -65,6 +71,8 @@ function AppProvider({ children }) {
       playersRefresh,
       defaultGameForPlaysTab,
       refreshSessions,
+      wishlist,
+      wishlistRefresh,
     ]
   );
 

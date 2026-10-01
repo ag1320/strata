@@ -8,7 +8,7 @@ pg = require('pg')
 console.log("environment", process.env.NODE_ENV)
 const knex = require('knex');
 
-const knexConfigs = require('../knexfile.js')
+const knexConfigs = require('../../knexfile.js')
 
 const config = knexConfigs[process.env.NODE_ENV];
 
