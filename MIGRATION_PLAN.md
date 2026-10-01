@@ -108,7 +108,18 @@ don't try to do everything below in one session unless explicitly asked.
       end-to-end on the new ports via both curl and a full browser pass -
       login, 141 real collection games, Wishlist, and logout all confirmed
       working on :4010/:4011, not just "the containers started."
-- [ ] Step 6 - Actual deployment to VM1
+- [~] **Step 6 - Actual deployment to VM1 (in progress)**. The in-repo
+      Caddy-prep half is done (2026-10-01): hostnames decided
+      (`strata.keylimedesigns.dev` / `strata-api.keylimedesigns.dev`), both
+      app containers no longer publish host ports, `.env` points at the real
+      hostnames, and a real container-naming collision with Segla's
+      `frontend` container was caught and fixed (renamed to
+      `strata-frontend`) before it could become a live routing bug. **Local
+      `localhost:4010`/`:4011` access is now gone, deliberately.** What's
+      left all lives on VM1 itself (git clone, `.env` creation, DB restore,
+      Caddy/DNS/ddclient) and needs either Aaron running it directly or a
+      way for Claude to reach that machine - see the full breakdown in the
+      Step 6 section below.
 - [ ] Step 7 - Cutover + cleanup
 
 ## Step 2 - Security audit + auth (done 2026-10-01 - see AUTH.md)
@@ -183,26 +194,116 @@ proxying both containers by name over the Docker network (Segla §1/§8).
 Follow Segla's `SERVER_MIGRATION.md` section-by-section (§1 ports is already decided
 above; §2 API URL is step 4 above) - the mechanics are identical:
 
+### Caddy prep - DONE in this repo (2026-10-01)
+
+Hostnames decided: **`strata.keylimedesigns.dev`** (frontend) /
+**`strata-api.keylimedesigns.dev`** (API) - same domain and naming
+convention as Segla, just the `strata` prefix instead of `segla`.
+
+`docker-compose.yaml` and `.env` updated to match:
+- `backend` and `strata-frontend` (see naming note below) no longer publish
+  `ports:` at all - reachable only over the Docker network, Caddy-only
+  access, matching Segla's exact pattern. `database` also dropped its host
+  port for the same reason (not strictly Caddy-related, but the same
+  "don't expose what doesn't need it" principle, and free to do at the same
+  time). **This breaks `localhost:4010`/`:4011` access from this machine -
+  deliberate, confirmed with the user before doing it.**
+- `.env`: `CORS_ORIGIN=https://strata.keylimedesigns.dev`,
+  `REACT_APP_API_BASE_URL=https://strata-api.keylimedesigns.dev`,
+  `NODE_ENV=production` (this machine's copy of the repo has no reachable
+  localhost left either way, so there's no reason to keep it at
+  `development` here anymore).
+- **Real catch made before it became a live bug:** Segla's frontend
+  container is *also* named literally `frontend` (its backend is `server`,
+  so no collision there). Once Caddy's own `docker-compose.yml` on VM1 joins
+  *both* apps' Docker networks, two different containers both resolvable as
+  plain `frontend` is a genuine ambiguous-DNS risk - Compose registers the
+  DNS alias from the **service name** (the YAML key), not just
+  `container_name`, so the fix had to rename the service itself. Renamed
+  bgg-app's frontend service (and `container_name`) to **`strata-frontend`**.
+  `backend` keeps its name - no collision there. Verified post-rename:
+  `strata-frontend` can still reach `backend:4011` by name over the Docker
+  network, confirming internal routing (the same mechanism Caddy itself will
+  use) still works.
+- Verified: compiled frontend bundle has `strata-api.keylimedesigns.dev`
+  baked in correctly; all three containers come up clean with no published
+  ports (`docker compose ps` shows no `0.0.0.0:X->Y` mappings).
+
+### Still needed - the parts that live on VM1 itself, not in this repo
+
+I (Claude) don't have access to VM1 from this session - no SSH, no
+filesystem access, nothing. Everything below has to be run by Aaron
+directly on that machine, or Claude needs to be given a way to reach it.
+
 - VM1 needs only `docker` + `docker compose` - nothing else.
-- `git clone` to `/opt/strata-games` (per the charter's directory convention).
-- Create `.env` on VM1 by hand (never arrives via git clone) - `.env.example`
-  (this repo root) now has the complete, real list of every var needed
-  (steps 2/4/5 all landed): DB_*, auth (AUTH_USERNAME/AUTH_PASSWORD_HASH,
-  **generate fresh on VM1, don't copy this machine's**), JWT_SECRET
-  (**also fresh**), CORS_ORIGIN (update to the real Caddy frontend hostname,
-  not `localhost:4010`), REACT_APP_API_BASE_URL (the real Caddy API
-  hostname, not `localhost:4011`), PORT.
-- `pg_dump`/`pg_restore` the real collection data over - **do a test restore against
-  a throwaway local Postgres container first**, same recommendation as Segla's
-  guide, cheap insurance.
-- Caddy integration: two hostnames needed (frontend + API), same split-subdomain
-  pattern as Segla (`segla.keylimedesigns.dev` / `segla-api.keylimedesigns.dev`) -
-  naming for Strata TBD, follow `Adding a New Service Behind Caddy.md`'s Pattern 1.
-- DNS (public + local override on the GL.iNet router), ddclient entry, external
-  verification from cellular data.
+- `git clone` to `/opt/strata-games` (per the charter's directory
+  convention) - this makes the Compose project name `strata-games`, so the
+  Docker network becomes **`strata-games_network1`** (auto-prefixed from the
+  directory name, same mechanism Segla's `segla_network1` came from).
+- Create `.env` on VM1 by hand (never arrives via `git clone` - it's
+  gitignored) - `.env.example` (this repo root) has the complete list of
+  every var needed. **Generate fresh `AUTH_PASSWORD_HASH` and `JWT_SECRET`
+  directly on VM1 (or any machine with Node) - do not copy this machine's
+  values.** The `CORS_ORIGIN`/`REACT_APP_API_BASE_URL`/hostnames are already
+  the real production ones in this repo's `.env.example` - just copy those
+  two lines as-is.
+- `pg_dump`/`pg_restore` the real collection data over - **do a test restore
+  against a throwaway local Postgres container first**, cheap insurance.
+- **Join Caddy to Strata's network** - in `/opt/caddy/docker-compose.yml`:
+  ```yaml
+  services:
+    caddy:
+      networks:
+        - nextcloud_default        # existing
+        - segla_network1           # existing
+        - strata-games_network1    # add this
+        - caddy_net
+
+  networks:
+    strata-games_network1:
+      external: true
+  ```
+- **Caddyfile blocks** - append to `/opt/caddy/Caddyfile`:
+  ```
+  strata.keylimedesigns.dev {
+      reverse_proxy strata-frontend:4010
+      log {
+          output file /var/log/caddy/strata.access.log
+          format json
+      }
+  }
+
+  strata-api.keylimedesigns.dev {
+      reverse_proxy backend:4011
+      log {
+          output file /var/log/caddy/strata-api.access.log
+          format json
+      }
+  }
+  ```
+  Add these **only once Strata is actually deployed and running** - same
+  warning as Segla's guide, a block pointing at a container that doesn't
+  exist yet is a live door with none of this app's protections the moment
+  something with that name does start. Reload after adding:
+  `cd /opt/caddy && sudo docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
+- **DNS** - public A records for `strata` and `strata-api` (same public IP
+  as everything else), plus the local override on the GL.iNet Flint 2 (LuCI:
+  Network -> DHCP and DNS -> Resolv and Hosts Files -> **Addresses**):
+  ```
+  /strata.keylimedesigns.dev/<VM1's LAN IP>
+  /strata-api.keylimedesigns.dev/<VM1's LAN IP>
+  ```
+  Verify with `dig @10.0.0.1 strata.keylimedesigns.dev` (and `-api`).
+- **ddclient** - add both hostnames to the existing comma-separated host
+  list in `/etc/ddclient.conf` (same Porkbun block Segla uses, don't create
+  a second one), then verify in the foreground:
+  `sudo ddclient -daemon=0 -verbose -noquiet`.
 - `app.set("trust proxy", 1)` already added in step 2 (needed so the login
   rate limiter sees the real client IP once Caddy is in front) - nothing to
   do here, just confirm it's still correct once Caddy's actually in place.
+- **External verification** from cellular data, off home WiFi:
+  `curl -I https://strata.keylimedesigns.dev` and
+  `curl -I https://strata-api.keylimedesigns.dev` - valid cert, no warnings.
 
 ## Step 7 - Cutover + cleanup (not started)
 

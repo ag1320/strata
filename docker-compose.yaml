@@ -13,16 +13,23 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "${DB_PORT}:5432"
+    # Not exposed to the host - `backend` reaches it over the Docker network
+    # at hostname "database", same as always. Matches Segla/Nextcloud's
+    # pattern: each app's own Postgres container, none of them host-exposed
+    # once multiple apps share VM1. To reach it directly (backups,
+    # spot-checking data): `docker exec -it database psql -U postgres -d database`.
+    # For a GUI tool instead, temporarily add back `ports: ["${DB_PORT}:5432"]`.
 
   backend:
     networks:
       - network1
     build: ./backend
-    ports:
-      - "4011:4011"
     container_name: backend
+    # Not exposed to the host - reachable only via Caddy, which joins this
+    # app's Docker network and proxies strata-api.keylimedesigns.dev to
+    # this container's PORT (4011). See MIGRATION_PLAN.md step 6 for the
+    # Caddy/DNS/ddclient setup on VM1. To reach it directly for local
+    # debugging, temporarily add back `ports: ["4011:4011"]`.
     # Matters specifically because of a first-boot race: on a fresh
     # `database` volume, Postgres's initdb takes a few seconds, and
     # `depends_on:` (bare list form) only waits for the container to start,
@@ -37,7 +44,14 @@ services:
       PORT: ${PORT}
     env_file: ".env"
 
-  frontend:
+  # Named "strata-frontend", not the generic "frontend" Segla also uses -
+  # once Caddy on VM1 joins both apps' Docker networks, two containers
+  # resolvable as plain "frontend" on networks it's attached to is a real
+  # ambiguous-DNS risk (which one does Caddy's reverse_proxy actually hit?),
+  # not just a style preference. Compose registers the DNS alias from this
+  # service name, so renaming the YAML key (not just container_name) is
+  # what actually avoids the collision.
+  strata-frontend:
     networks:
       - network1
     build:
@@ -48,9 +62,10 @@ services:
         # `npm run build` as a build arg, not just an .env entry the
         # running container would see.
         REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL}
-    ports:
-      - "4010:4010"
-    container_name: frontend
+    container_name: strata-frontend
+    # Not exposed to the host - reachable only via Caddy, which proxies
+    # strata.keylimedesigns.dev to this container's port 4010. Temporarily
+    # add back `ports: ["4010:4010"]` for local debugging if needed.
     restart: unless-stopped
     depends_on:
       - backend
