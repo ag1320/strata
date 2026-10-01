@@ -69,7 +69,27 @@ don't try to do everything below in one session unless explicitly asked.
       the container, fixed by removing it entirely. See `BACKEND_RESTRUCTURE.md`
       §3 for the full story. Verified live: real wishlist data (2 items,
       including a wishlist comment) renders correctly end-to-end.
-- [ ] Step 3 - Docker production hardening
+- [x] **Step 3 - Docker production hardening** (done 2026-10-01). Both
+      Dockerfiles are now two-stage, non-root, on `node:24-alpine` (matching
+      Segla); `backend/package.json` splits `start` (plain `node`, no
+      nodemon) from a new `dev` (nodemon, for host-side live-reload); both
+      `.dockerignore` files added; `docker-compose.yaml` drops both bind
+      mounts and adds `restart: unless-stopped` to all three services. Ports
+      unchanged (3000/3001, no Caddy yet). **Real issue found and fixed**:
+      `frontend`'s `npm install` failed outright on the newer npm bundled
+      with `node:24-alpine` - `@mui/styles@5.16.0` declares a peer dependency
+      on `react@^17`, but the app uses `react@18.3.1`. This mismatch already
+      existed and was already silently tolerated by npm 6 (bundled with the
+      old `node:14-alpine`); npm 11+ enforces peer deps strictly by default
+      and refuses to install. Fixed with `--legacy-peer-deps` in the
+      Dockerfile (restores the old tolerant behavior, doesn't change what
+      actually gets resolved) rather than touching the dependency itself -
+      worth a real fix in its own pass someday, but out of scope here.
+      Verified end-to-end against the hardened containers: login, real
+      collection data (141 games), Wishlist (real items + comment), and
+      logout all work identically to before; confirmed the accepted
+      live-reload trade-off is real (`docker inspect` shows zero mounts on
+      either container now).
 - [ ] Step 4 - Frontend hardcoded API URL fix
 - [ ] Step 5 - Port remapping
 - [ ] Step 6 - Actual deployment to VM1
@@ -98,35 +118,30 @@ Still true and worth carrying into later steps:
 Full pattern and reasoning: `Documentation/Security/Securing a Node-Express-React
 App Before It Goes Public.md` in the homelab vault.
 
-## Step 3 - Docker production hardening (not started)
+## Step 3 - Docker production hardening (done 2026-10-01)
 
-Segla's `server`/`ui` Dockerfiles were dev-shaped and got fixed in one pass (see
-Segla's `SERVER_MIGRATION.md` §9). bgg-app's `backend`/`frontend` Dockerfiles have
-the exact same dev-shaped issues, confirmed while working on step 1:
+Done: both Dockerfiles are two-stage (deps/build + runtime/serve) on
+`node:24-alpine`, `backend` runs as non-root `node`, `backend/package.json`
+splits `start` (plain `node`) from a new `dev` (nodemon, for host-side
+live-reload now that the bind mount is gone), both `.dockerignore` files
+added, `docker-compose.yaml` has `restart: unless-stopped` on all three
+services and no bind mounts on `backend`/`frontend` anymore.
 
-- `backend/Dockerfile`: single-stage `RUN npm install` + `CMD npm start` (runs
-  `nodemon`, a dev dependency, in "production"). `docker-compose.yaml` bind-mounts
-  `./backend:/app` over the image's own install - the image's own `COPY` is nearly
-  pointless, what actually runs is whatever's on the host disk. Needs: two-stage
-  build (`npm ci --omit=dev`), move `nodemon` to devDependencies, drop the bind
-  mount (trade-off: no more live-reload through Docker - edit + `docker compose
-  restart backend`, or run `npm run dev`-equivalent on the host for live-reload),
-  non-root user, add `backend/.dockerignore` (`node_modules`, `.env`, `.git`).
-- `backend/Dockerfile` is still on `node:14-alpine` - 14 went EOL April 2023. Expect
-  the same OpenSSL-3/webpack MD4 incompatibility Segla's `ui` hit when it bumped
-  past Node 16 (`error:0308010C:digital envelope routines::unsupported`) - fix is
-  `ENV NODE_OPTIONS=--openssl-legacy-provider` on the build stage only, **if** this
-  app's frontend build hits the same issue (it uses CRA too, so likely yes).
-- `frontend/Dockerfile`: check if it's running CRA's dev server (`react-scripts
-  start`) the same way Segla's originally was - if so, same fix needed (two-stage
-  build, serve the static bundle, since a dev server rejects unrecognized `Host`
-  headers once this sits behind a real domain).
-- Add `restart: unless-stopped` to all services in `docker-compose.yaml` - Segla
-  needed this after `backend` lost a startup race against Postgres on a fresh
-  volume and just stayed dead with no restart policy.
-- **Verify by actually building and running the image**, not just by reasoning about
-  the Dockerfile - that's what caught the real OpenSSL incompatibility and the
-  Postgres startup race for Segla, neither of which static reasoning alone found.
+Notable: the OpenSSL-3/webpack MD4 incompatibility Segla hit
+(`error:0308010C:digital envelope routines::unsupported`) was headed off
+preemptively with `ENV NODE_OPTIONS=--openssl-legacy-provider` on the
+frontend build stage, copying Segla's already-known fix rather than
+rediscovering it - the build succeeded clean, so this wasn't re-verified by
+removing the flag to see if it would actually have failed without it; treat
+that line as load-bearing. What **wasn't** anticipated and had to be fixed
+for real: `frontend`'s `npm install` failed outright under npm 11+ (bundled
+with `node:24-alpine`) over a pre-existing `@mui/styles@5.16.0` (wants
+`react@^17`) vs. `react@18.3.1` peer-dependency mismatch that npm 6 (bundled
+with the old `node:14-alpine`) silently tolerated. Fixed with
+`--legacy-peer-deps` in the Dockerfile rather than touching the dependency
+itself - that mismatch is still there, just not installed. A real fix (bump
+or drop `@mui/styles`, check what the app actually still uses it for) worth
+investigating in its own pass, not before deployment.
 
 ## Step 4 - Frontend hardcoded API URL fix (not started)
 

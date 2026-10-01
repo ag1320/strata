@@ -2,6 +2,7 @@ version: "3"
 services:
   database:
     image: "postgres:14"
+    restart: unless-stopped
     volumes:
       - ./database:/var/lib/postgresql/data
       - ./csv-data:/csv-data
@@ -22,12 +23,17 @@ services:
     ports:
       - "3001:3001"
     container_name: backend
+    # Matters specifically because of a first-boot race: on a fresh
+    # `database` volume, Postgres's initdb takes a few seconds, and
+    # `depends_on:` (bare list form) only waits for the container to start,
+    # not for Postgres inside it to be ready - without this, `backend`
+    # losing that race on `knex migrate:latest` exits permanently instead
+    # of Compose retrying.
+    restart: unless-stopped
     depends_on:
       - database
     environment:
       DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
-    volumes:
-      - ./backend:/app
     env_file: ".env"
 
   frontend:
@@ -37,10 +43,9 @@ services:
     ports:
       - "3000:3000"
     container_name: frontend
+    restart: unless-stopped
     depends_on:
       - backend
-    volumes:
-      - ./frontend:/app
 
 networks:
   network1:
