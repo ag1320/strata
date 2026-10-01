@@ -173,7 +173,7 @@ const MyCollectionPlays = ({ handleLogPlayClick }) => {
   return (
     <Box className="my-collection-plays">
       <Grid container className="grid-container-plays">
-        <Grid item xs={6} className="grid-item-plays" sx={{marginBottom: 5}}>
+        <Grid item xs={12} sm={6} className="grid-item-plays" sx={{marginBottom: 5}}>
           <Button
             onClick={handleLogPlayButtonClick}
             className="fancy-button"
@@ -182,7 +182,7 @@ const MyCollectionPlays = ({ handleLogPlayClick }) => {
             Add Play Session
           </Button>
         </Grid>
-        <Grid item xs={6} className="grid-item-plays">
+        <Grid item xs={12} sm={6} className="grid-item-plays">
           <Box className="plays-search-box-container">
             <Autocomplete
               freeSolo

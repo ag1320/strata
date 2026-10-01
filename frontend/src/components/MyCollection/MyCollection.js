@@ -174,7 +174,10 @@ const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
           spacing={3}
           className="grid-container-bottom"
         >
-          <Grid item xs={6}>
+          {/* xs={6} with no larger-breakpoint override left two full-text
+              buttons fighting for ~195px on a 390px phone - stack full-width
+              below `sm`. */}
+          <Grid item xs={12} sm={6}>
             <Stack direction={"row"} spacing={2}>
               <Button
                 onClick={updateCollection}
@@ -204,8 +207,8 @@ const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
               </Button>
             </Stack>
           </Grid>
-          <Grid item xs={6} alignItems="flex-end">
-            <Typography textAlign="right">
+          <Grid item xs={12} sm={6} alignItems="flex-end">
+            <Typography textAlign={{ xs: "left", sm: "right" }}>
               {`${filteredGames?.length} Results`}
             </Typography>
           </Grid>

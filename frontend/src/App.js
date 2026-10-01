@@ -24,6 +24,11 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    width: "100%",
+    // Prevents any fixed-width child (a card grid, a carousel, a modal)
+    // from stretching this container past the viewport and forcing a
+    // horizontal scrollbar - a safety net on top of fixing each child.
+    overflowX: "hidden",
     ...(open && {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: `${drawerWidth}px`,
@@ -32,6 +37,13 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
         duration: theme.transitions.duration.enteringScreen,
       }),
     }),
+    // Below `sm` the Drawer is a "temporary" overlay (Navbar.js), not
+    // "persistent" - it never pushes this content aside, so the push-over
+    // width/margin above must never apply here regardless of `open`.
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      marginLeft: 0,
+    },
   })
 );
 

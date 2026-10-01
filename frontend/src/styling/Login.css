@@ -8,7 +8,11 @@
 
 .login-paper {
   padding: 32px;
-  width: 340px;
+  /* Fixed 340px overflowed narrower phones (e.g. a 320px-wide iPhone SE) -
+     caps at 340px on anything roomier, shrinks to fit below that. */
+  width: 90vw;
+  max-width: 340px;
+  box-sizing: border-box;
 }
 
 .login-logo-container {

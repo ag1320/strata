@@ -54,10 +54,10 @@ const StatsGame = ({
       <Grid container spacing={2}>
         {selectedGame && inputValue ? (
           <>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <h2 className="stats-title">{`Most Recent Play: ${mostRecentDateString}`}</h2>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <div className="stats-title-stack-container">
                 <Stack direction={"row"} className="stats-title-stack">
                   <div className="stats-games-icon-container">
@@ -67,7 +67,7 @@ const StatsGame = ({
                 </Stack>
               </div>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <h2 className="stats-title">{`Number of Plays: ${numPlays}`}</h2>
             </Grid>
           </>
@@ -94,7 +94,7 @@ const StatsGame = ({
         </Grid>
         {selectedGame && inputValue ? (
           <>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <List className="game-stats-list">
                 <ListItem className="game-stats-list-item">
                   <ListItemText
@@ -113,7 +113,7 @@ const StatsGame = ({
                 ))}
               </List>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <div
                 className="stats-media-container"
                 onClick={() => handleSeePlays(selectedGame)}
@@ -125,7 +125,7 @@ const StatsGame = ({
                 />
               </div>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={12} sm={4}>
               <div>
                 <h3>Winner Metrics</h3>
                 <p>

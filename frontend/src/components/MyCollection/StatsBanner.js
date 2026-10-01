@@ -46,7 +46,7 @@ const StatsBanner = ({mostPlayedGames, uniqueSessions, mostRecentlyPlayedGames})
     <Card className="stats-banner">
       <Grid container>
         {/* Most Played Game Section */}
-        <Grid item xs={4} className="stats-section">
+        <Grid item xs={12} sm={4} className="stats-section">
           <Typography variant="h6" className="stats-title" color="white">
             Most Played Game
           </Typography>
@@ -94,7 +94,7 @@ const StatsBanner = ({mostPlayedGames, uniqueSessions, mostRecentlyPlayedGames})
         </Grid>
 
         {/* Total Game Plays Section */}
-        <Grid item xs={4} className="stats-section total-plays-grid-item">
+        <Grid item xs={12} sm={4} className="stats-section total-plays-grid-item">
           <Typography variant="h6" className="stats-title" color="white">
             Total Game Plays
           </Typography>
@@ -106,7 +106,7 @@ const StatsBanner = ({mostPlayedGames, uniqueSessions, mostRecentlyPlayedGames})
         </Grid>
 
         {/* Most Recently Played Section */}
-        <Grid item xs={4} className="stats-section">
+        <Grid item xs={12} sm={4} className="stats-section">
           <Typography variant="h6" className="stats-title" color="white">
             Most Recently Played
           </Typography>

@@ -89,7 +89,7 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
             <div className="player-stats-lists-container">
               <Grid item xs={12}>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} sm={6}>
                     {/*1st of 2 columns. most played and most recent*/}
                     <StatsPlayerMost
                       selectedPlayer={selectedPlayer}
@@ -97,7 +97,7 @@ const StatsPlayer = ({ uniqueSessions, handleSeePlays }) => {
                     />
                     {/*end 1st column*/}
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} sm={6}>
                     {/*2nd of 2 columns. highest win percentage games*/}
                     <StatsHighestWinPercentageGames
                       games={

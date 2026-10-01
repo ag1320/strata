@@ -89,6 +89,9 @@ export default function MyCollectionTabBar() {
             aria-label="basic tabs example"
             textColor="primary"
             className="my-collection-tabs"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
           >
             <Tab
               label={<span className="my-collection-tab">My Collection</span>}

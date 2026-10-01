@@ -1,3 +1,12 @@
+html, body {
+  /* Safety net against any one fixed-width element (a card, a carousel, a
+     modal) forcing the whole page to scroll sideways - each offending
+     element should still be fixed at its source, but this stops a single
+     miss from breaking the entire page on a phone-width screen. */
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

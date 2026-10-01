@@ -28,6 +28,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  useMediaQuery,
 } from "@mui/material";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -54,6 +55,15 @@ const AppBar = styled(MuiAppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  // Below `sm`, the Drawer becomes a "temporary" overlay (see the variant
+  // switch below) instead of "persistent" - an overlay sits on top of the
+  // page, it doesn't push it aside, so the bar must never shrink/shift for
+  // it regardless of `open`. Placed after the `open` spread so this wins on
+  // mobile widths.
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    marginLeft: 0,
+  },
 }));
 
 export default function Navbar({
@@ -65,6 +75,13 @@ export default function Navbar({
 }) {
   const navigate = useNavigate();
   const { setAuthStatus, setUsername } = useContext(AppContext);
+  // "persistent" pushes the main content aside, leaving room for the
+  // drawer - fine on desktop, but on a phone-width screen that's most of
+  // the viewport gone permanently. Below `sm`, switch to "temporary": an
+  // overlay that sits on top of the page and dismisses on a backdrop tap
+  // or (already wired up below) any nav link tap, never stealing layout
+  // width. This is MUI's own documented responsive-drawer pattern.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogout = async () => {
     try {
@@ -111,13 +128,16 @@ export default function Navbar({
           flexShrink: 0,
           "& .MuiDrawer-paper": {
             width: drawerWidth,
+            maxWidth: "80vw",
             boxSizing: "border-box",
             backgroundColor: "#2F4858",
           },
         }}
-        variant="persistent"
+        variant={isMobile ? "temporary" : "persistent"}
+        ModalProps={{ keepMounted: true }}
         anchor="left"
         open={open}
+        onClose={handleDrawerClose}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>

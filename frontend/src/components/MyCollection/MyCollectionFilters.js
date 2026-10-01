@@ -159,7 +159,11 @@ const MyCollectionFilters = ({
           </>
         )}
         <>
-          <Grid item xs={6}>
+          {/* xs={6} with no larger-breakpoint override squeezed this whole
+              row of chips/dropdown/icons into a ~195px-wide column on a
+              390px phone - stack full-width below `sm`, sit side-by-side
+              with the search box from `sm` up. */}
+          <Grid item xs={12} sm={6}>
             <Grid container spacing={2} className="filter-chips-container">
               <Grid item xs={"auto"} className="filter-chips-grid-item">
                 <Badge badgeContent={numFilters} className="custom-badge">
@@ -242,7 +246,7 @@ const MyCollectionFilters = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={6} className="search-container">
+          <Grid item xs={12} sm={6} className="search-container">
             <Stack direction={"row"}>
               <Tooltip title="Choose Random Game">
                 <IconButton onClick={handleGetRandom}>
