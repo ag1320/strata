@@ -4,13 +4,15 @@ import MyCollectionTabBar from "./components/MyCollection/MyCollectionTabBar.js"
 import Friends from "./components/Friends/Friends.js";
 import Wishlist from "./components/Wishlist/Wishlist.js";
 import AppSnackbar from "./components/AppSnackbar.js"
+import Login from "./components/Login.js";
+import RequireAuth from "./components/RequireAuth.js";
 
 import logoText from "./images/strata-logo-and-text.png";
 import logoFrame from "./images/strata-frame.png";
 
 import { Box } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 
 import "./styling/App.css";
@@ -36,6 +38,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
 function App() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -43,6 +46,12 @@ function App() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  // /login is a standalone page - no Navbar/Drawer chrome, no auth check
+  // (that would be circular). Everything else requires a session.
+  if (location.pathname === "/login") {
+    return <Login />;
+  }
 
   return (
     <div className="App">
@@ -59,14 +68,16 @@ function App() {
           theme={theme}
         />
         <AppSnackbar/>
-        <Main open={open}>
-          <Routes>
-            <Route path="/collection" element={<MyCollectionTabBar/>} />
-            <Route path="/friends" element={<Friends/>}/>
-            <Route path="/wishlist" element={<Wishlist/>}/>
-            <Route path="/" element={<Home/>} />
-          </Routes>
-        </Main>
+        <RequireAuth>
+          <Main open={open}>
+            <Routes>
+              <Route path="/collection" element={<MyCollectionTabBar/>} />
+              <Route path="/friends" element={<Friends/>}/>
+              <Route path="/wishlist" element={<Wishlist/>}/>
+              <Route path="/" element={<Home/>} />
+            </Routes>
+          </Main>
+        </RequireAuth>
       </Box>
     </div>
   );

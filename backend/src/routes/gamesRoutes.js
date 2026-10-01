@@ -17,6 +17,7 @@ const {
   getDifference,
   deleteGame,
 } = require("../controllers/gamesController");
+const { sendError } = require("../utils/sendError");
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.get("/db-my-games", (req, res) => {
       res.status(200).send(data);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 

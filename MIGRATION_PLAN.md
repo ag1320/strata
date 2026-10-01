@@ -8,8 +8,9 @@ tags: [strata-games, bgg-app, migration, vm1, roadmap]
 # Strata Games (bgg-app) -> VM1 migration plan
 
 **If you're a future Claude session picking this up cold: read this file first, then
-`BACKEND_RESTRUCTURE.md` in this same repo root for what step 1 actually did. The
-homelab Obsidian vault has the broader context and the deployment-specific how-to:**
+`BACKEND_RESTRUCTURE.md` (step 1) and `AUTH.md` (step 2, also the auth system's own
+setup doc) in this same repo root. The homelab Obsidian vault has the broader
+context and the deployment-specific how-to:**
 
 - `Home Lab/Guides/Phase 2 - Existing Hardware Expansion/Actions/Strata Games Migration.md`
   - the Strata-specific migration guide (was a draft/pre-migration plan as of last
@@ -34,46 +35,48 @@ don't try to do everything below in one session unless explicitly asked.
       auth. Full writeup, including a Cloudflare bot-challenge risk discovered while
       verifying: **`BACKEND_RESTRUCTURE.md`** (this repo root). Verified end-to-end
       against the real database via `docker compose up -d --build`.
-- [ ] Step 2 - Security audit + auth
+- [x] **Step 2 - Security audit + auth** (done 2026-10-01). Login (shared
+      username/password, httpOnly JWT cookie), `sendError` everywhere a raw
+      error object used to go straight to the client, CORS locked to an
+      allowlist, `helmet`. Full writeup: **`AUTH.md`** (this repo root, setup
+      instructions) - also documents a real bug found and fixed in the
+      `hash-password` script's `$`-escaping (copied from Segla, silently a
+      no-op - worth checking Segla's real deployed hash for the same issue).
+      Verified end-to-end in a real browser against `docker compose up -d
+      --build`: login, wrong-password rejection, every route 401ing without a
+      session and 200ing with one, logout actually clearing the server-side
+      session, and the in-progress Wishlist feature still rendering correctly
+      post-login. Also fixed, as a side effect of testing the new Login page:
+      three pre-existing unscoped global CSS leaks (`GroupAutocomplete.css`,
+      `MyCollectionFilters.css`, `LogPlayModal.css` all had bare
+      `.MuiInputLabel-root`/`.MuiFormLabel-root`/`.MuiOutlinedInput-input`
+      selectors with no parent scoping, forcing every MUI text field on the
+      page - including the new Login form - to render white-on-white).
 - [ ] Step 3 - Docker production hardening
 - [ ] Step 4 - Frontend hardcoded API URL fix
 - [ ] Step 5 - Port remapping
 - [ ] Step 6 - Actual deployment to VM1
 - [ ] Step 7 - Cutover + cleanup
 
-## Step 2 - Security audit + auth (not started)
+## Step 2 - Security audit + auth (done 2026-10-01 - see AUTH.md)
 
-Mirrors Segla's `AUTH.md` pass, and is explicitly called out as required (not
-optional) in `Strata Games Migration.md` §6a, since this app has never been
-internet-facing before. Known findings already, from working on step 1 - don't
-re-derive these, just fix them:
+Done: login (shared username/password, httpOnly JWT cookie, `requireAuth` on
+every route including BGG passthrough), `sendError` replacing every raw
+`res.status(4xx).send(error)` across `backend/src/routes/*.js`, CORS switched
+from wildcard to a `CORS_ORIGIN` allowlist, `helmet` added. Full setup/rotation
+instructions: **`AUTH.md`** (this repo root).
 
-- **No auth at all.** Every route is open. Needs the same login/JWT-cookie pattern
-  Segla got - see Segla's `AUTH.md` in `~/finance-app` for the exact shape
-  (bcrypt password hash in `.env` via `npm run hash-password`, JWT in an httpOnly
-  cookie, a login route, `requireAuth` middleware). **Generate a fresh JWT secret
-  for this app - never reuse Segla's.**
-- **Raw errors leak to clients.** Nearly every route handler in the new
-  `backend/src/routes/*.js` does `.catch((error) => res.status(400).send(error))` or
-  similar - sends the raw error object straight to the client. Segla fixed this with
-  a small `utils/sendError.js` (log server-side, send a fixed generic message
-  client-side) - see `~/finance-app/server/src/utils/sendError.js` for the exact
-  pattern to copy. Deliberately **not** fixed in step 1 to keep that pass purely
-  structural - fix it now.
-- **CORS is wildcard** (`origin: "*"` in `backend/src/app.js`). Can't stay that way
-  once auth adds credentialed (cookie-carrying) requests - browsers reject
-  `Access-Control-Allow-Origin: *` combined with credentials. Needs the same
-  `CORS_ORIGIN` env-var allowlist pattern Segla uses.
-- **No `helmet`.** Needed once this sits behind Caddy on a public domain - and if
-  Strata ends up on a split frontend/API subdomain pattern like Segla
-  (`strata.keylimedesigns.dev` / `strata-api.keylimedesigns.dev`, naming TBD),
-  `helmet`'s default `Cross-Origin-Resource-Policy: same-origin` needs the same
-  override Segla needed (`crossOriginResourcePolicy: { policy: "cross-origin" }`).
+Still true and worth carrying into later steps:
+
 - **`.env` has a plaintext DB password** (`DB_PASSWORD`) already gitignored
-  correctly - just carry it over securely (NordPass note or similar), don't commit
-  it, consider rotating it for the VM1 copy.
+  correctly - just carry it over securely (NordPass note or similar) when
+  deploying, consider rotating it for the VM1 copy.
 - Audit `.gitignore` for anything like a stray DB dump sitting in the repo
-  (Segla had one slip through before this was caught).
+  (Segla had one slip through before this was caught) - clean as of 2026-10-01.
+- If Strata ends up on a split frontend/API subdomain pattern like Segla
+  (`strata.keylimedesigns.dev` / `strata-api.keylimedesigns.dev`, naming TBD),
+  `helmet`'s `crossOriginResourcePolicy` is already set to `cross-origin` to
+  support that - no further change needed when that happens.
 
 Full pattern and reasoning: `Documentation/Security/Securing a Node-Express-React
 App Before It Goes Public.md` in the homelab vault.
@@ -149,8 +152,9 @@ above; §2 API URL is step 4 above) - the mechanics are identical:
   naming for Strata TBD, follow `Adding a New Service Behind Caddy.md`'s Pattern 1.
 - DNS (public + local override on the GL.iNet router), ddclient entry, external
   verification from cellular data.
-- `app.set("trust proxy", 1)` if auth's rate limiter needs the real client IP
-  behind Caddy (same as Segla's `/auth/login` limiter).
+- `app.set("trust proxy", 1)` already added in step 2 (needed so the login
+  rate limiter sees the real client IP once Caddy is in front) - nothing to
+  do here, just confirm it's still correct once Caddy's actually in place.
 
 ## Step 7 - Cutover + cleanup (not started)
 
@@ -171,7 +175,25 @@ above; §2 API URL is step 4 above) - the mechanics are identical:
   for the full investigation.
 - BGG/Cloudflare can intermittently 403-challenge automated clients regardless of
   auth - not a blocker, just a known flake risk, documented in
-  `BACKEND_RESTRUCTURE.md`.
+  `BACKEND_RESTRUCTURE.md`. Re-confirmed while testing step 2's login flow in a
+  real browser - hit it again after a day of repeated testing requests.
+- `backend/Dockerfile` is still on `node:14-alpine` as of step 2 -
+  `express-rate-limit@8.x` and `helmet@8.x` (added in step 2) both declare an
+  `engines` requirement newer than Node 14 and print npm warnings on install,
+  but both run fine at runtime in practice. Confirms step 3's Node version
+  bump is about more than just OpenSSL/webpack - don't be surprised by more
+  engine-mismatch warnings from future dependencies until that bump happens.
+- Three pre-existing global CSS leaks were found and fixed while building
+  step 2's Login page (unscoped `.MuiInputLabel-root`/`.MuiFormLabel-root`/
+  `.MuiOutlinedInput-input` selectors in `GroupAutocomplete.css`,
+  `MyCollectionFilters.css`, and `LogPlayModal.css` - each file had one
+  properly-scoped version of these rules alongside a copy-pasted *unscoped*
+  one, so CRA's global CSS bundling applied them to every MUI text field on
+  every page, not just the modal each file was meant for). If a future
+  component's MUI label/input text looks mysteriously invisible against a
+  light background, check for this same pattern before assuming it's a new
+  bug - `grep -rn 'MuiInputLabel\|MuiFormLabel\|MuiOutlinedInput' frontend/src/styling/*.css`
+  and look for any hit with no parent class in front of it.
 - `frontend/src/` has pre-existing **uncommitted** work in progress (a Wishlist
   feature - modified `App.js`, `AppContext.js`, `Navbar.js`, `serverCalls.js`, plus
   new `components/Wishlist/` and styling files) as of 2026-10-01, unrelated to this

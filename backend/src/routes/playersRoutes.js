@@ -4,6 +4,7 @@ const {
   postPlayer,
   patchPlayer,
 } = require("../controllers/playersController");
+const { sendError } = require("../utils/sendError");
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.get("/db-players", async (req, res) => {
       res.status(200).send(data);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 

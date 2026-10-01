@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
 import { styled } from "@mui/material/styles";
 import MuiAppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -7,10 +8,13 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HomeIcon from "@mui/icons-material/Home";
 import CasinoIcon from "@mui/icons-material/Casino";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
+import LogoutIcon from "@mui/icons-material/Logout";
 import logo from "../images/strata-logo.png";
 import MeepleIcon from "../images/Meeple";
 import "../styling/Navbar.css";
 import bgg from "../images/BGG.jpeg";
+import { AppContext } from "../AppContext.js";
+import { logout } from "../helper-functions/serverCalls.js";
 import {
   Box,
   Toolbar,
@@ -59,6 +63,19 @@ export default function Navbar({
   open,
   theme,
 }) {
+  const navigate = useNavigate();
+  const { setAuthStatus, setUsername } = useContext(AppContext);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      setAuthStatus("unauthenticated");
+      setUsername(null);
+      navigate("/login");
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", height: "7vh" }}>
       <CssBaseline />
@@ -164,6 +181,12 @@ export default function Navbar({
               <ListItemText primary="Friends" />
             </ListItem>
           </Link>
+          <ListItem button onClick={handleLogout}>
+            <ListItemIcon>
+              <LogoutIcon style={{ fill: "white" }} />
+            </ListItemIcon>
+            <ListItemText primary="Log out" />
+          </ListItem>
         </List>
         <Box className="bgg-container">
           <a

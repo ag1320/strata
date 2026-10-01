@@ -7,6 +7,7 @@ const {
   postGamesGroups,
   deleteGamesGroups,
 } = require("../controllers/groupsController");
+const { sendError } = require("../utils/sendError");
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.get("/db-groups", async (req, res) => {
       res.status(200).send(data);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 
@@ -41,7 +42,7 @@ router.delete("/db-groups", async (req, res) => {
       res.status(200).send();
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 
@@ -77,7 +78,7 @@ router.delete("/db-games-groups", async (req, res) => {
       res.status(200).send();
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 

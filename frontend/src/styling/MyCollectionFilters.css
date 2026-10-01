@@ -161,15 +161,15 @@
   background-color: #252728;
 }
 
-.MuiFormLabel-root{
+.form-control .MuiFormLabel-root{
   color: white;
 }
 
-.MuiInputLabel-root.Mui-focused {
+.form-control .MuiInputLabel-root.Mui-focused {
   color: #ffffff;
 }
 
-.MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
+.form-control .MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
   color: #ffffff;
 }
 
@@ -177,7 +177,7 @@
   background-color: #2F4858;
 }
 
-.MuiFormLabel-root:focus{
+.form-control .MuiFormLabel-root:focus{
   color: white;
 }
 

@@ -1,25 +1,25 @@
 /* Change the outline of the box when focused */
-.Mui-focused .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
-  border-color: white; 
+.group-autocomplete-filter-modal .Mui-focused .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white;
 }
 
 /* Change the outline of the box when unfocused */
-.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
-  border-color: white; 
+.group-autocomplete-filter-modal .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: white;
 }
 
 /* Change the color of the text */
-.MuiOutlinedInput-input {
+.group-autocomplete-filter-modal .MuiOutlinedInput-input {
   color: white
 }
 
 /* Optional: Change the label color */
-.MuiInputLabel-root {
+.group-autocomplete-filter-modal .MuiInputLabel-root {
   color: white
 }
 
 /* Optional: Change the label color when focused */
-.Mui-focused .MuiInputLabel-root {
+.group-autocomplete-filter-modal .Mui-focused .MuiInputLabel-root {
   color: white
 }
 

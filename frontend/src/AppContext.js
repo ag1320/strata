@@ -22,6 +22,13 @@ function AppProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [wishlistRefresh, setWishlistRefresh] = useState(false);
 
+  // "unknown" (haven't asked the API yet) | "authenticated" | "unauthenticated" -
+  // starts "unknown" so RequireAuth can wait for a /auth/me check before
+  // deciding whether to redirect to /login (otherwise a page reload on a
+  // valid session would flash the login screen every time).
+  const [authStatus, setAuthStatus] = useState("unknown");
+  const [username, setUsername] = useState(null);
+
   const valueObj = useMemo(
     () => ({
       hotGames,
@@ -56,6 +63,10 @@ function AppProvider({ children }) {
       setWishlist,
       wishlistRefresh,
       setWishlistRefresh,
+      authStatus,
+      setAuthStatus,
+      username,
+      setUsername,
     }),
     [
       hotGames,
@@ -73,6 +84,8 @@ function AppProvider({ children }) {
       refreshSessions,
       wishlist,
       wishlistRefresh,
+      authStatus,
+      username,
     ]
   );
 

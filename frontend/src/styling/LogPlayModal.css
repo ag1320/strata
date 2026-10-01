@@ -103,7 +103,7 @@
 }
 
 /* Optional: Change the select placeholder text color */
-.MuiInputLabel-root {
+.modal .modal-box .modal-content .grid-container .MuiInputLabel-root {
   color: white; /* Change placeholder text color */
 }
 

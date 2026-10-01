@@ -1,0 +1,31 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.login-paper {
+  padding: 32px;
+  width: 340px;
+}
+
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.login-logo {
+  max-height: 60px;
+}
+
+.login-error {
+  margin-top: 8px;
+}
+
+.login-submit {
+  margin-top: 16px;
+  background-color: #2f4858;
+}

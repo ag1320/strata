@@ -10,6 +10,7 @@ const {
   doesPlayerHaveSessions,
   deletePlayer,
 } = require("../controllers/playersController");
+const { sendError } = require("../utils/sendError");
 
 const router = Router();
 
@@ -53,7 +54,7 @@ router.get("/session", async (req, res) => {
       res.status(200).send(data);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      sendError(res, error, 400);
     });
 });
 
@@ -72,8 +73,7 @@ router.delete("/session", async (req, res) => {
     const playerData = await getPlayersByIds(playerIds);
     res.status(200).send(playerData);
   } catch (error) {
-    console.error(error);
-    res.status(400).send(error);
+    sendError(res, error, 400);
   }
 });
 

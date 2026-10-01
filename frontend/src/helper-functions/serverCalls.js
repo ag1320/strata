@@ -9,6 +9,54 @@ import {
 } from "./dataSanitization.js";
 import CONFIG from "../config.js";
 
+// The API now requires a session cookie (see AUTH.md) - the cookie only
+// gets sent if every request opts in to credentials. Global axios default
+// rather than a per-call option because every function below calls bare
+// `axios.*`.
+axios.defaults.withCredentials = true;
+
+// Any *data* API call that comes back 401 means a previously-valid session
+// died mid-use (expired token, logged out in another tab, or just never
+// logged in). Bounce to /login with a full reload - this file has no
+// router context, and it's the simplest thing that reliably works from a
+// module that plain functions call into.
+//
+// /auth/me and /auth/login are excluded: RequireAuth and Login already
+// handle their own 401s without a page reload, so letting this interceptor
+// also fire for them would just add a redundant reload.
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const url = error.config?.url || "";
+    const isAuthEndpoint = url.includes("/auth/me") || url.includes("/auth/login");
+    if (
+      error.response?.status === 401 &&
+      !isAuthEndpoint &&
+      window.location.pathname !== "/login"
+    ) {
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+// AUTH
+async function login(username, password) {
+  const res = await axios.post("http://localhost:3001/auth/login", {
+    username,
+    password,
+  });
+  return res.data;
+}
+async function logout() {
+  const res = await axios.post("http://localhost:3001/auth/logout");
+  return res.data;
+}
+async function fetchCurrentUser() {
+  const res = await axios.get("http://localhost:3001/auth/me");
+  return res.data;
+}
+
 const getDetailedGamesFromUsername = async (username) => {
   let statusCode = 202;
   let BGGGames = [];
@@ -544,6 +592,9 @@ async function getWishlist() {
 }
 
 export {
+  login,
+  logout,
+  fetchCurrentUser,
   patchGameFavorite,
   getHotGames,
   getFirstFiveGames,
