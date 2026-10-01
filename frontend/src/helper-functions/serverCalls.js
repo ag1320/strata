@@ -9,6 +9,12 @@ import {
 } from "./dataSanitization.js";
 import CONFIG from "../config.js";
 
+// Set via REACT_APP_API_BASE_URL in .env - CRA inlines REACT_APP_* vars at
+// build/dev-server-start time. Defaults to local dev. Once the backend moves
+// off this machine, this is the one value that has to change - see
+// MIGRATION_PLAN.md.
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+
 // The API now requires a session cookie (see AUTH.md) - the cookie only
 // gets sent if every request opts in to credentials. Global axios default
 // rather than a per-call option because every function below calls bare
@@ -42,18 +48,18 @@ axios.interceptors.response.use(
 
 // AUTH
 async function login(username, password) {
-  const res = await axios.post("http://localhost:3001/auth/login", {
+  const res = await axios.post(`${BASE_URL}/auth/login`, {
     username,
     password,
   });
   return res.data;
 }
 async function logout() {
-  const res = await axios.post("http://localhost:3001/auth/logout");
+  const res = await axios.post(`${BASE_URL}/auth/logout`);
   return res.data;
 }
 async function fetchCurrentUser() {
-  const res = await axios.get("http://localhost:3001/auth/me");
+  const res = await axios.get(`${BASE_URL}/auth/me`);
   return res.data;
 }
 
@@ -136,7 +142,7 @@ async function patchGameFavorite(game, favorite) {
       game,
       favorite,
     };
-    await axios.patch("http://localhost:3001/db-my-games-favorite", payload);
+    await axios.patch(`${BASE_URL}/db-my-games-favorite`, payload);
     return;
   } catch (err) {
     console.log(err);
@@ -146,7 +152,7 @@ async function patchGameFavorite(game, favorite) {
 
 async function getHotGames() {
   try {
-    let res = await axios.get("http://localhost:3001/hot-games");
+    let res = await axios.get(`${BASE_URL}/hot-games`);
     let games = res.data.items.item;
     return games;
   } catch (err) {
@@ -160,7 +166,7 @@ async function getFirstFiveGames(firstFiveHotGamesIds) {
     let payload = {
       gameIds: firstFiveHotGamesIds,
     };
-    let res = await axios.get("http://localhost:3001/specific-games", {
+    let res = await axios.get(`${BASE_URL}/specific-games`, {
       params: payload,
     });
     let games = res.data.items.item;
@@ -176,7 +182,7 @@ async function getFriends() {
     let payload = {
       username: CONFIG.BGG_USERNAME,
     };
-    let res = await axios.get("http://localhost:3001/friends", {
+    let res = await axios.get(`${BASE_URL}/friends`, {
       params: payload,
     });
     let friends = res.data.user.buddies;
@@ -222,7 +228,7 @@ async function postGamesGroups(inputs) {
       groupId,
     };
     await axios
-      .post("http://localhost:3001/db-games-groups", payload)
+      .post(`${BASE_URL}/db-games-groups`, payload)
       .then(() => {
         inputs.setSnackbarSuccess(true);
         inputs.setRefresh(!inputs.refresh);
@@ -240,7 +246,7 @@ async function patchGameRanks(games) {
     let payload = {
       games,
     };
-    await axios.patch("http://localhost:3001/db-my-games-rank", payload);
+    await axios.patch(`${BASE_URL}/db-my-games-rank`, payload);
     return;
   } catch (err) {
     console.log(err);
@@ -250,7 +256,7 @@ async function patchGameRanks(games) {
 
 async function getGroups() {
   try {
-    let res = await axios.get("http://localhost:3001/db-groups");
+    let res = await axios.get(`${BASE_URL}/db-groups`);
     return res.data;
   } catch (err) {
     console.log(err);
@@ -261,7 +267,7 @@ async function getGroups() {
 //DB
 const fetchMyGames = async () => {
   try {
-    const res = await axios.get("http://localhost:3001/db-my-games");
+    const res = await axios.get(`${BASE_URL}/db-my-games`);
     return res.data;
   } catch (err) {
     console.error(err);
@@ -271,7 +277,7 @@ const fetchMyGames = async () => {
 
 //BGG
 async function getBGGGames(username) {
-  let res = await axios.get("http://localhost:3001/user-games", {
+  let res = await axios.get(`${BASE_URL}/user-games`, {
     params: { username },
   });
   return { status: res.status, data: res?.data?.items?.item || [] };
@@ -291,7 +297,7 @@ async function getSpecificGamesDetailed(gameIds) {
       let payload = {
         gameIds: chunk,
       };
-      return axios.get("http://localhost:3001/specific-games", {
+      return axios.get(`${BASE_URL}/specific-games`, {
         params: payload,
       });
     });
@@ -316,7 +322,7 @@ async function storeMyGames(games) {
     let payload = {
       games,
     };
-    await axios.post("http://localhost:3001/db-my-games", payload);
+    await axios.post(`${BASE_URL}/db-my-games`, payload);
     return;
   } catch (err) {
     console.log(err);
@@ -329,7 +335,7 @@ async function postGroup(groupName, refresh, setRefresh) {
     let payload = {
       groupName,
     };
-    await axios.post("http://localhost:3001/db-groups", payload);
+    await axios.post(`${BASE_URL}/db-groups`, payload);
 
     setRefresh(!refresh);
     return;
@@ -345,7 +351,7 @@ async function patchGroup(editId, groupName) {
       editId,
       groupName,
     };
-    await axios.patch("http://localhost:3001/db-groups", payload);
+    await axios.patch(`${BASE_URL}/db-groups`, payload);
     return;
   } catch (err) {
     console.log(err);
@@ -367,7 +373,7 @@ async function deleteGroup(
     },
   };
   try {
-    await axios.delete("http://localhost:3001/db-groups", payload);
+    await axios.delete(`${BASE_URL}/db-groups`, payload);
 
     setRefresh(!refresh);
     return;
@@ -392,7 +398,7 @@ async function deleteGamesGroups(
     },
   };
   try {
-    await axios.delete("http://localhost:3001/db-games-groups", payload);
+    await axios.delete(`${BASE_URL}/db-games-groups`, payload);
 
     setRefresh(!refresh);
     setSnackbarSuccess(true);
@@ -406,7 +412,7 @@ async function deleteGamesGroups(
 
 async function getPlayers() {
   try {
-    let res = await axios.get("http://localhost:3001/db-players");
+    let res = await axios.get(`${BASE_URL}/db-players`);
     return res.data;
   } catch (err) {
     console.log(err);
@@ -453,7 +459,7 @@ async function postPlayer(
 
     // Make the API request
     let newlyAddedPlayer = await axios.post(
-      "http://localhost:3001/db-players",
+      `${BASE_URL}/db-players`,
       payload
     );
 
@@ -501,8 +507,8 @@ async function postNewSession(
       winnerScore,
       activePlayers,
     };
-    await axios.post("http://localhost:3001/session", payload);
-    const res = await axios.get(`http://localhost:3001/session`);
+    await axios.post(`${BASE_URL}/session`, payload);
+    const res = await axios.get(`${BASE_URL}/session`);
     const sessionData = res.data
     await patchPlayerData(sessionData, activePlayers, myGames);
 
@@ -521,7 +527,7 @@ async function postNewSession(
 
 const getSessions = async () => {
   try {
-    const response = await axios.get(`http://localhost:3001/session`);
+    const response = await axios.get(`${BASE_URL}/session`);
     return response.data;
   } catch (error) {
     console.error("Error fetching session data:", error);
@@ -544,9 +550,9 @@ const deleteSession = async (
     },
   };
   try {
-    const res = await axios.delete("http://localhost:3001/session", payload);
+    const res = await axios.delete(`${BASE_URL}/session`, payload);
     const playerData = res.data
-    const res2 = await axios.get(`http://localhost:3001/session`);
+    const res2 = await axios.get(`${BASE_URL}/session`);
     const sessionData = res2.data
 
     await patchPlayerData(sessionData, playerData, myGames)
@@ -573,7 +579,7 @@ const patchPlayerData = async (sessionData, activePlayers, myGames) => {
         selectedPlayer,
         myGames
       );
-      await axios.patch("http://localhost:3001/db-players", playerData);
+      await axios.patch(`${BASE_URL}/db-players`, playerData);
     }
     return;
   } catch (err) {
@@ -584,7 +590,7 @@ const patchPlayerData = async (sessionData, activePlayers, myGames) => {
 
 async function getWishlist() {
   const items = await pollBggEndpoint(async () => {
-    const res = await axios.get("http://localhost:3001/user-wishlist", {
+    const res = await axios.get(`${BASE_URL}/user-wishlist`, {
       params: { username: CONFIG.BGG_USERNAME },
     });
     return { status: res.status, data: res.data?.items?.item || [] };

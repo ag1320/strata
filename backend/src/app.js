@@ -38,7 +38,7 @@ app.set("trust proxy", 1);
 
 // crossOriginResourcePolicy defaults to "same-origin", which would make
 // Chrome block the frontend's cross-origin fetches even with CORS headers
-// present - frontend (localhost:3000) and backend (localhost:3001) are
+// present - frontend (localhost:4010) and backend (localhost:4011) are
 // different origins by design, same as Segla's setup.
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 
@@ -47,7 +47,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 // wildcard CORS on an API that now sits behind a login is exactly the kind
 // of thing worth being deliberate about. CORS_ORIGIN in .env is a
 // comma-separated list; default covers local dev only.
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:4010")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -87,7 +87,7 @@ app.use(groupsRoutes);
 app.use(playersRoutes);
 app.use(sessionsRoutes);
 
-const port = 3001;
+const port = process.env.PORT || 4011;
 app.listen(port, () =>
   console.log(`Backend listening at http://localhost:${port}`)
 );

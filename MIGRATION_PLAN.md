@@ -90,8 +90,24 @@ don't try to do everything below in one session unless explicitly asked.
       logout all work identically to before; confirmed the accepted
       live-reload trade-off is real (`docker inspect` shows zero mounts on
       either container now).
-- [ ] Step 4 - Frontend hardcoded API URL fix
-- [ ] Step 5 - Port remapping
+- [x] **Step 4 - Frontend hardcoded API URL fix** (done 2026-10-01). All 27
+      hardcoded `http://localhost:3001` occurrences in `serverCalls.js`
+      (slightly more than the ~24 originally estimated) replaced with a
+      `BASE_URL` constant read from `REACT_APP_API_BASE_URL`. Wired as a
+      Dockerfile `ARG`/`ENV` and a `docker-compose.yaml` build arg, matching
+      Segla's `ui/Dockerfile` pattern exactly. Verified the compiled bundle
+      actually has the right value baked in (`docker exec frontend grep` on
+      the built JS), not just that the code looks right.
+- [x] **Step 5 - Port remapping** (done 2026-10-01). Frontend 3000->4010,
+      backend 3001->4011, matching the reservation already made in the
+      homelab's `Software Stack.md`. Touched: `app.js`'s `PORT` env var
+      (was hardcoded), both Dockerfiles' `EXPOSE`, `docker-compose.yaml`'s
+      `ports:`, `CORS_ORIGIN`/`REACT_APP_API_BASE_URL` in `.env`, and two
+      stale references caught along the way (`strata.sh`'s browser-open
+      command, `README.md`'s outdated port/CORS-proxy mention). Verified
+      end-to-end on the new ports via both curl and a full browser pass -
+      login, 141 real collection games, Wishlist, and logout all confirmed
+      working on :4010/:4011, not just "the containers started."
 - [ ] Step 6 - Actual deployment to VM1
 - [ ] Step 7 - Cutover + cleanup
 
@@ -143,29 +159,24 @@ itself - that mismatch is still there, just not installed. A real fix (bump
 or drop `@mui/styles`, check what the app actually still uses it for) worth
 investigating in its own pass, not before deployment.
 
-## Step 4 - Frontend hardcoded API URL fix (not started)
+## Step 4 - Frontend hardcoded API URL fix (done 2026-10-01)
 
-`frontend/src/helper-functions/serverCalls.js` hardcodes `http://localhost:3001` at
-~24 call sites (confirmed via grep while working on step 1). Direct equivalent of
-Segla's `REACT_APP_API_BASE_URL` fix - same shape:
+Done as described in Status above. `frontend/src/config.js`'s `BGG_USERNAME`
+was left where it is - `BASE_URL` stayed a plain module-level constant in
+`serverCalls.js` instead, matching Segla's own pattern exactly rather than
+inventing a new convention.
 
-- Add a `BASE_URL` constant read from `process.env.REACT_APP_API_BASE_URL`,
-  replace all ~24 hardcoded occurrences.
-- Remember this bakes in at Docker **build** time for a CRA app, not container
-  start - changing it later means rebuilding the image, not just editing `.env` and
-  restarting (Segla's guide §2 has the full explanation of why).
-- `frontend/src/config.js` already holds `BGG_USERNAME` - consider whether
-  `BASE_URL` belongs there too for consistency, or stays a plain env var like
-  Segla's. Either is fine, just be deliberate about it.
+## Step 5 - Port remapping (done 2026-10-01)
 
-## Step 5 - Port remapping (not started)
-
-Already reserved in the homelab vault's `Software Stack.md` so Strata never
-collides with Segla or Uptime Kuma: **4010 (frontend) / 4011 (backend)**, not
-host-exposed (Caddy-only, same pattern as Segla). Currently 3000/3001 locally -
-leave as-is for local dev until actually deploying; remap happens as part of the
-deploy step, along with dropping `ports:` publishing entirely (Caddy reaches both
-over the Docker network by container name, exactly like Segla §1/§8).
+Done as described in Status above - frontend/backend now run on 4010/4011
+everywhere (Dockerfiles, compose, `.env`, `app.js`). **One deliberate
+deviation from this section's original plan:** ports are still host-published
+(`ports:` still present in `docker-compose.yaml` for both services) - the
+original note here said "not host-exposed (Caddy-only)," but that part is
+Caddy's job, not this step's. Caddy doesn't exist yet; removing host
+publishing now would just break local dev with no way to reach the app at
+all. Dropping `ports:` entirely happens in step 6, once Caddy is actually
+proxying both containers by name over the Docker network (Segla §1/§8).
 
 ## Step 6 - Actual deployment to VM1 (not started)
 
@@ -174,8 +185,13 @@ above; §2 API URL is step 4 above) - the mechanics are identical:
 
 - VM1 needs only `docker` + `docker compose` - nothing else.
 - `git clone` to `/opt/strata-games` (per the charter's directory convention).
-- Create `.env` on VM1 by hand (never arrives via git clone) - full table TBD once
-  step 2's auth env vars exist.
+- Create `.env` on VM1 by hand (never arrives via git clone) - `.env.example`
+  (this repo root) now has the complete, real list of every var needed
+  (steps 2/4/5 all landed): DB_*, auth (AUTH_USERNAME/AUTH_PASSWORD_HASH,
+  **generate fresh on VM1, don't copy this machine's**), JWT_SECRET
+  (**also fresh**), CORS_ORIGIN (update to the real Caddy frontend hostname,
+  not `localhost:4010`), REACT_APP_API_BASE_URL (the real Caddy API
+  hostname, not `localhost:4011`), PORT.
 - `pg_dump`/`pg_restore` the real collection data over - **do a test restore against
   a throwaway local Postgres container first**, same recommendation as Segla's
   guide, cheap insurance.

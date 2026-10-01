@@ -16,6 +16,13 @@ COPY package*.json ./
 # host today, not a new problem this Dockerfile introduces.
 RUN npm install --legacy-peer-deps
 COPY . .
+# REACT_APP_API_BASE_URL must be passed as a build arg (not just an .env
+# value) - CRA inlines REACT_APP_* vars at build time, and this stage is
+# where that build happens now that frontend runs a production build
+# instead of the dev server. Changing this value requires a rebuild
+# (docker compose build frontend), not just an .env edit + restart.
+ARG REACT_APP_API_BASE_URL
+ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 # react-scripts 5's bundled webpack still hashes with MD4, which OpenSSL 3
 # (default since Node 17) rejects - "error:0308010C:digital envelope
 # routines::unsupported". Known issue, already hit and fixed this exact way
@@ -29,5 +36,5 @@ FROM node:24-alpine
 WORKDIR /app
 RUN npm install -g serve
 COPY --from=build /app/build ./build
-EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "3000"]
+EXPOSE 4010
+CMD ["serve", "-s", "build", "-l", "4010"]

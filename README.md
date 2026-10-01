@@ -108,7 +108,7 @@ BGG_API_KEY=your_bgg_api_key
 bash strata.sh
 ```
 
-The app will be available at `http://localhost:3000`. The backend runs on port `3001` and the CORS proxy on its own container.
+The app will be available at `http://localhost:4010`. The backend runs on port `4011`. (No CORS proxy container - removed, see `BACKEND_RESTRUCTURE.md`.) Requires a login - see `AUTH.md`.
 
 ## API Overview
 

@@ -21,7 +21,7 @@ services:
       - network1
     build: ./backend
     ports:
-      - "3001:3001"
+      - "4011:4011"
     container_name: backend
     # Matters specifically because of a first-boot race: on a fresh
     # `database` volume, Postgres's initdb takes a few seconds, and
@@ -34,14 +34,22 @@ services:
       - database
     environment:
       DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
+      PORT: ${PORT}
     env_file: ".env"
 
   frontend:
     networks:
       - network1
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        # CRA inlines REACT_APP_* vars at build time, not container start,
+        # now that this is a production build - the value has to reach
+        # `npm run build` as a build arg, not just an .env entry the
+        # running container would see.
+        REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL}
     ports:
-      - "3000:3000"
+      - "4010:4010"
     container_name: frontend
     restart: unless-stopped
     depends_on:

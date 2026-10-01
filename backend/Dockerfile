@@ -24,6 +24,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node . .
-EXPOSE 3001
+EXPOSE 4011
 USER node
 CMD ["sh", "-c", "npx knex migrate:latest && node src/app.js"]
