@@ -96,8 +96,8 @@ don't try to do everything below in one session unless explicitly asked.
       `BASE_URL` constant read from `REACT_APP_API_BASE_URL`. Wired as a
       Dockerfile `ARG`/`ENV` and a `docker-compose.yaml` build arg, matching
       Segla's `ui/Dockerfile` pattern exactly. Verified the compiled bundle
-      actually has the right value baked in (`docker exec frontend grep` on
-      the built JS), not just that the code looks right.
+      actually has the right value baked in (`docker exec` into the frontend
+      container and `grep` the built JS), not just that the code looks right.
 - [x] **Step 5 - Port remapping** (done 2026-10-01). Frontend 3000->4010,
       backend 3001->4011, matching the reservation already made in the
       homelab's `Software Stack.md`. Touched: `app.js`'s `PORT` env var
@@ -113,8 +113,17 @@ don't try to do everything below in one session unless explicitly asked.
       (`strata.keylimedesigns.dev` / `strata-api.keylimedesigns.dev`), both
       app containers no longer publish host ports, `.env` points at the real
       hostnames, and a real container-naming collision with Segla's
-      `frontend` container was caught and fixed (renamed to
-      `strata-frontend`) before it could become a live routing bug. **Local
+      `frontend` container was caught and fixed. **Revised same day:** all
+      three services renamed to a consistent `strata-` prefix -
+      `strata-database`, `strata-backend`, `strata-frontend` - not just the
+      one (`frontend`) that actually collided with Segla. Deliberate choice
+      to maintain one convention rather than rely on remembering which
+      specific names happen to be collision-free today (`backend` doesn't
+      collide with Segla's `server`, but naming it `strata-backend` anyway
+      means the convention doesn't depend on that staying true). Updated
+      everywhere a container name was referenced: `docker-compose.yaml`
+      (service keys, `container_name`, `depends_on`), `.env`/`.env.example`'s
+      `DB_CONNECTION_STRING` hostname, `strata.sh`. **Local
       `localhost:4010`/`:4011` access is now gone, deliberately.** What's
       left all lives on VM1 itself (git clone, `.env` creation, DB restore,
       Caddy/DNS/ddclient) and needs either Aaron running it directly or a
@@ -201,13 +210,13 @@ Hostnames decided: **`strata.keylimedesigns.dev`** (frontend) /
 convention as Segla, just the `strata` prefix instead of `segla`.
 
 `docker-compose.yaml` and `.env` updated to match:
-- `backend` and `strata-frontend` (see naming note below) no longer publish
-  `ports:` at all - reachable only over the Docker network, Caddy-only
-  access, matching Segla's exact pattern. `database` also dropped its host
-  port for the same reason (not strictly Caddy-related, but the same
-  "don't expose what doesn't need it" principle, and free to do at the same
-  time). **This breaks `localhost:4010`/`:4011` access from this machine -
-  deliberate, confirmed with the user before doing it.**
+- None of the three services publish `ports:` anymore - reachable only over
+  the Docker network, Caddy-only access, matching Segla's exact pattern for
+  `backend`/`frontend`; `database` dropped its host port too for the same
+  "don't expose what doesn't need it" reason (not strictly Caddy-related,
+  but free to do at the same time). **This breaks `localhost:4010`/`:4011`
+  access from this machine - deliberate, confirmed with the user before
+  doing it.**
 - `.env`: `CORS_ORIGIN=https://strata.keylimedesigns.dev`,
   `REACT_APP_API_BASE_URL=https://strata-api.keylimedesigns.dev`,
   `NODE_ENV=production` (this machine's copy of the repo has no reachable
@@ -219,15 +228,24 @@ convention as Segla, just the `strata` prefix instead of `segla`.
   *both* apps' Docker networks, two different containers both resolvable as
   plain `frontend` is a genuine ambiguous-DNS risk - Compose registers the
   DNS alias from the **service name** (the YAML key), not just
-  `container_name`, so the fix had to rename the service itself. Renamed
-  bgg-app's frontend service (and `container_name`) to **`strata-frontend`**.
-  `backend` keeps its name - no collision there. Verified post-rename:
-  `strata-frontend` can still reach `backend:4011` by name over the Docker
-  network, confirming internal routing (the same mechanism Caddy itself will
-  use) still works.
-- Verified: compiled frontend bundle has `strata-api.keylimedesigns.dev`
-  baked in correctly; all three containers come up clean with no published
-  ports (`docker compose ps` shows no `0.0.0.0:X->Y` mappings).
+  `container_name`, so the fix had to rename the service itself, not just
+  relabel `container_name`.
+- **Revised same day, at the user's request:** rather than renaming only the
+  one service that actually collided, all three services now use a
+  consistent **`strata-`** prefix - **`strata-database`**, **`strata-backend`**,
+  **`strata-frontend`** - so the convention doesn't depend on remembering
+  which specific names happen to be safe today (`backend` didn't collide
+  with Segla's `server`, but there's no guarantee some *other* future app on
+  VM1 won't also pick "backend"). Updated everywhere a container name was
+  referenced: `docker-compose.yaml` (service keys, `container_name`,
+  `depends_on`), `.env`/`.env.example`'s `DB_CONNECTION_STRING` hostname
+  (`@strata-database:...`), `strata.sh`'s `docker-compose exec` call.
+- Verified post-rename: `strata-frontend` can still reach `strata-backend:4011`
+  by name over the Docker network, confirming internal routing (the same
+  mechanism Caddy itself will use) still works; compiled frontend bundle has
+  `strata-api.keylimedesigns.dev` baked in correctly; all three containers
+  come up clean under their new names with no published ports (`docker
+  compose ps` shows no `0.0.0.0:X->Y` mappings).
 
 ### Still needed - the parts that live on VM1 itself, not in this repo
 
@@ -274,7 +292,7 @@ directly on that machine, or Claude needs to be given a way to reach it.
   }
 
   strata-api.keylimedesigns.dev {
-      reverse_proxy backend:4011
+      reverse_proxy strata-backend:4011
       log {
           output file /var/log/caddy/strata-api.access.log
           format json

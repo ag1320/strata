@@ -10,7 +10,7 @@ docker-compose up -d
 
 # Wait for the Docker container to be up (you can adjust the timeout)
 echo "Waiting for Docker container to be ready..."
-while ! docker-compose exec frontend sh -c 'echo "Container is ready"'; do
+while ! docker-compose exec strata-frontend sh -c 'echo "Container is ready"'; do
   sleep 2
 done
 

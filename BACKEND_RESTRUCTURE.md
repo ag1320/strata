@@ -122,13 +122,15 @@ argument for bringing that proxy back.
 
 One debugging note worth keeping: the challenge can be scoped to a specific
 client/IP+pattern. While isolating this, direct `curl` from the WSL host kept
-succeeding on demand while the Docker-containerized `backend` was consistently
+succeeding on demand while the Docker-containerized backend was consistently
 403-challenged on the exact same endpoint/query - the container's own requests
 throughout a long testing session had apparently gotten that specific outbound
 path flagged longer than the host's. Don't assume "it works from curl on the
 host" rules out a live problem in the running container - test from inside the
-container itself (`docker exec backend node -e "..."` or similar) if a clean
-host-side check looks fine but the app still 403s.
+container itself (`docker exec strata-backend node -e "..."` or similar,
+container renamed from `backend` since this was written - see
+MIGRATION_PLAN.md) if a clean host-side check looks fine but the app still
+403s.
 
 If this ever resurfaces despite the fix: reduce request frequency / add caching
 for `hot-games` specifically (it's identical for every user, no reason to refetch
