@@ -11,11 +11,17 @@ const parser = new xml2js.Parser();
 // the real source of confusing 401s, not a CORS problem.
 const BGG_BASE_URL = "https://boardgamegeek.com/xmlapi2";
 
+// No spoofed User-Agent here on purpose - confirmed with a controlled A/B
+// test (2026-10-01, see BACKEND_RESTRUCTURE.md) that a fake "Chrome on
+// Windows" UA is exactly what triggers Cloudflare's bot challenge on this
+// endpoint: identical request, only the UA header differed, and the
+// spoofed one got a 403 "Just a moment..." challenge while axios's own
+// honest default UA got a clean 200. Node's TLS handshake doesn't match a
+// real Chrome's, so claiming to be Chrome anyway is a bot-detection red
+// flag, not camouflage.
 function bggHeaders() {
   return {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       Authorization: `Bearer ${process.env.BGG_API_KEY}`,
     },
   };

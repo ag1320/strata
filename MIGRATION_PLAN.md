@@ -52,6 +52,23 @@ don't try to do everything below in one session unless explicitly asked.
       `.MuiInputLabel-root`/`.MuiFormLabel-root`/`.MuiOutlinedInput-input`
       selectors with no parent scoping, forcing every MUI text field on the
       page - including the new Login form - to render white-on-white).
+- [x] **Wishlist feature fix + BGG Cloudflare root-cause fix** (done
+      2026-10-01, not a numbered step - a detour while step 3 was being
+      planned). The Wishlist feature itself was already fully built; three
+      real bugs were found and fixed while verifying it: (1) the BGG
+      `202`-retry loop (in both `getWishlist()` and the collection-sync path)
+      had no backoff and silently swallowed real failures into an empty
+      result, indistinguishable from a genuinely empty wishlist - fixed with
+      a shared `pollBggEndpoint()` helper (backoff + attempt cap + throws on
+      real failure) and a new `wishlistError` state surfaced in the UI;
+      (2) the wishlist item mapper read `item.comment` but BGG's real XML tag
+      is `<wishlistcomment>` - comments were silently always blank, fixed;
+      (3) **the actual root cause of every Cloudflare 403 seen since step 1**
+      turned out to be the spoofed Chrome `User-Agent` header in
+      `bggController.js` - confirmed with a controlled A/B test from inside
+      the container, fixed by removing it entirely. See `BACKEND_RESTRUCTURE.md`
+      §3 for the full story. Verified live: real wishlist data (2 items,
+      including a wishlist comment) renders correctly end-to-end.
 - [ ] Step 3 - Docker production hardening
 - [ ] Step 4 - Frontend hardcoded API URL fix
 - [ ] Step 5 - Port remapping
@@ -173,10 +190,12 @@ above; §2 API URL is step 4 above) - the mechanics are identical:
   called at `boardgamegeek.com` (no `www` - it 301-redirects and some HTTP clients
   drop the Authorization header across that redirect). See `BACKEND_RESTRUCTURE.md`
   for the full investigation.
-- BGG/Cloudflare can intermittently 403-challenge automated clients regardless of
-  auth - not a blocker, just a known flake risk, documented in
-  `BACKEND_RESTRUCTURE.md`. Re-confirmed while testing step 2's login flow in a
-  real browser - hit it again after a day of repeated testing requests.
+- BGG/Cloudflare 403-challenging automated clients - **root-caused and fixed**
+  while finishing the Wishlist feature (2026-10-01): the spoofed Chrome
+  `User-Agent` in `bggController.js` was the actual trigger, confirmed with a
+  controlled A/B test. Fixed by just not sending a `User-Agent` at all. Full
+  story in `BACKEND_RESTRUCTURE.md` §3. If this somehow resurfaces, don't
+  re-add a fake browser UA as a "fix" - that's what caused it.
 - `backend/Dockerfile` is still on `node:14-alpine` as of step 2 -
   `express-rate-limit@8.x` and `helmet@8.x` (added in step 2) both declare an
   `engines` requirement newer than Node 14 and print npm warnings on install,

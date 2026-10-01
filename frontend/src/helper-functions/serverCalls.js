@@ -57,14 +57,44 @@ async function fetchCurrentUser() {
   return res.data;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// BGG queues collection/wishlist requests and responds 202 ("try again")
+// until the result is ready. Retries with a short backoff instead of
+// hammering immediately - an unthrottled tight retry loop is a plausible
+// contributor to the BGG/Cloudflare bot-detection challenges seen while
+// developing this app (see BACKEND_RESTRUCTURE.md). Throws on anything
+// other than 200/202 instead of returning an empty result, so a real BGG
+// failure is never indistinguishable from a genuinely empty collection.
+async function pollBggEndpoint(fetchOnce, { maxAttempts = 5, delayMs = 1500 } = {}) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const { status, data } = await fetchOnce();
+    if (status === 200) return data;
+    if (status !== 202) {
+      throw new Error(`BGG request failed with status ${status}`);
+    }
+    if (attempt < maxAttempts) {
+      await sleep(delayMs);
+    }
+  }
+  throw new Error("BGG request timed out waiting for a queued result");
+}
+
 const getDetailedGamesFromUsername = async (username) => {
-  let statusCode = 202;
   let BGGGames = [];
   let detailedGames = [];
 
-  //bgg has to queue user queries, keep trying until goes through
-  while (statusCode === 202) {
-    ({ BGGGames, statusCode } = await getBGGGames(username));
+  try {
+    BGGGames = await pollBggEndpoint(() => getBGGGames(username));
+  } catch (err) {
+    console.log(err);
+    return {
+      isError: true,
+      errorMsg: "Error fetching collection from BGG",
+      detailedGames: [],
+    };
   }
 
   if (BGGGames.length === 0) {
@@ -241,20 +271,10 @@ const fetchMyGames = async () => {
 
 //BGG
 async function getBGGGames(username) {
-  try {
-    let payload = {
-      username,
-    };
-    let res = await axios.get("http://localhost:3001/user-games", {
-      params: payload,
-    });
-    let BGGGames = res?.data?.items?.item;
-    let statusCode = res.status;
-    return { BGGGames, statusCode };
-  } catch (err) {
-    console.log(err);
-    return { BGGGames: [], statusCode: 500 };
-  }
+  let res = await axios.get("http://localhost:3001/user-games", {
+    params: { username },
+  });
+  return { status: res.status, data: res?.data?.items?.item || [] };
 }
 
 //BGG
@@ -563,23 +583,12 @@ const patchPlayerData = async (sessionData, activePlayers, myGames) => {
 };
 
 async function getWishlist() {
-  let statusCode = 202;
-  let items = [];
-
-  while (statusCode === 202) {
-    try {
-      const res = await axios.get("http://localhost:3001/user-wishlist", {
-        params: { username: CONFIG.BGG_USERNAME },
-      });
-      statusCode = res.status;
-      if (statusCode === 200) {
-        items = res.data?.items?.item || [];
-      }
-    } catch (err) {
-      console.log(err);
-      return [];
-    }
-  }
+  const items = await pollBggEndpoint(async () => {
+    const res = await axios.get("http://localhost:3001/user-wishlist", {
+      params: { username: CONFIG.BGG_USERNAME },
+    });
+    return { status: res.status, data: res.data?.items?.item || [] };
+  });
 
   return items.map((item) => ({
     id: item.$.objectid,
@@ -587,7 +596,10 @@ async function getWishlist() {
     image: item.image?.[0] || item.thumbnail?.[0] || "",
     thumbnail: item.thumbnail?.[0] || item.image?.[0] || "",
     url: "https://boardgamegeek.com/boardgame/" + item.$.objectid,
-    comment: item.comment?.[0] || "",
+    // BGG's collection XML uses <wishlistcomment>, not <comment>, for the
+    // note attached to a wishlist entry - confirmed against a real response
+    // (an item with no note at all omits the tag entirely, hence the `?.`).
+    comment: item.wishlistcomment?.[0] || "",
   }));
 }
 

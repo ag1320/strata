@@ -100,33 +100,41 @@ clients (confirmed hitting this with curl's default redirect handling while test
 That combination - wrong host, dropped auth header - is almost certainly the real
 source of the confusing 401s from early development, not CORS.
 
-### 3. New risk surfaced while verifying this (not fixed here - documented for later)
+### 3. Cloudflare 403 risk - root-caused and FIXED (2026-10-01, during step 2's Wishlist work)
 
 While testing the restructured `bggController.js` end-to-end against the live BGG
-API, `/hot-games` and `/friends` intermittently came back `403 Forbidden` with a
-Cloudflare "Just a moment..." JS-challenge page - after several back-to-back test
-requests from the same IP. This is **not a CORS problem and not an auth problem** -
-it's BGG/Cloudflare's bot-management layer challenging a client it suspects is
-automated, based on request volume/behavior and possibly the client's TLS
-fingerprint vs. claimed `User-Agent` (the code sends a hardcoded "Chrome on Windows"
-`User-Agent` string from a Node/axios request, which doesn't match a real Chrome
-TLS handshake - a classic bot-detection signal; a real browser calling this never
-hits this mismatch).
+API, `/hot-games`, `/friends`, and `/user-wishlist` intermittently came back
+`403 Forbidden` with a Cloudflare "Just a moment..." JS-challenge page. Originally
+documented here (step 1) as an open hypothesis - "maybe the spoofed Chrome
+`User-Agent` is making the bot-detection heuristic worse, not better." That
+hypothesis is now confirmed, not speculative: a controlled same-request A/B test
+from inside the actual `backend` container (one request with the hardcoded
+`User-Agent: Mozilla/5.0 ... Chrome/91...` header, one without it, otherwise
+identical) got `403` with the spoofed header and a clean `200` with axios's own
+honest default. **Fix applied:** `bggController.js`'s `bggHeaders()` no longer
+sends any `User-Agent` at all - just the `Authorization` header BGG actually
+requires. Node's TLS handshake never matched a real Chrome's in the first place;
+claiming to be Chrome anyway was the actual red flag, not camouflage.
 
-**No proxy fixes this** - `cors-anywhere` only adds CORS headers, it can't solve a
-JS challenge, so this isn't an argument for bringing the proxy back. If this shows
-up in production:
+This was **not a CORS problem and not an auth problem** - `cors-anywhere` was
+never capable of fixing it (a proxy can't solve a JS challenge), so this isn't an
+argument for bringing that proxy back.
 
-- Reduce request frequency / add caching for `hot-games` in particular (it's
-  identical for every user, no reason to refetch it per-request)
-- Consider dropping the spoofed Chrome `User-Agent` in favor of an honest one
-  (or axios's default) - claiming to be Chrome without Chrome's TLS fingerprint may
-  be making the bot-detection heuristic worse, not better. Flagged as a hypothesis
-  from this one incident, not verified by controlled testing - worth an experiment
-  before changing, not a blind change.
-- A sustained block would need BGG's actual registered-application flow (the 2025
-  auth change was BGG moving toward requiring registered, identified clients) -
-  out of scope for this repo today.
+One debugging note worth keeping: the challenge can be scoped to a specific
+client/IP+pattern. While isolating this, direct `curl` from the WSL host kept
+succeeding on demand while the Docker-containerized `backend` was consistently
+403-challenged on the exact same endpoint/query - the container's own requests
+throughout a long testing session had apparently gotten that specific outbound
+path flagged longer than the host's. Don't assume "it works from curl on the
+host" rules out a live problem in the running container - test from inside the
+container itself (`docker exec backend node -e "..."` or similar) if a clean
+host-side check looks fine but the app still 403s.
+
+If this ever resurfaces despite the fix: reduce request frequency / add caching
+for `hot-games` specifically (it's identical for every user, no reason to refetch
+it per-request), and know that a sustained block would ultimately need BGG's
+actual registered-application flow (the 2025 auth change was BGG moving toward
+requiring registered, identified clients) - out of scope for this repo today.
 
 ## Explicitly deferred to later steps
 

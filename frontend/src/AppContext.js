@@ -21,6 +21,7 @@ function AppProvider({ children }) {
   const [sessionData, setSessionData] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [wishlistRefresh, setWishlistRefresh] = useState(false);
+  const [wishlistError, setWishlistError] = useState(null);
 
   // "unknown" (haven't asked the API yet) | "authenticated" | "unauthenticated" -
   // starts "unknown" so RequireAuth can wait for a /auth/me check before
@@ -63,6 +64,8 @@ function AppProvider({ children }) {
       setWishlist,
       wishlistRefresh,
       setWishlistRefresh,
+      wishlistError,
+      setWishlistError,
       authStatus,
       setAuthStatus,
       username,
@@ -84,6 +87,7 @@ function AppProvider({ children }) {
       refreshSessions,
       wishlist,
       wishlistRefresh,
+      wishlistError,
       authStatus,
       username,
     ]

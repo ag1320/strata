@@ -7,7 +7,7 @@ import WishlistCard from "./WishlistCard";
 import "../../styling/Wishlist.css";
 
 export default function Wishlist() {
-  const { wishlist, wishlistRefresh, setWishlistRefresh } =
+  const { wishlist, wishlistRefresh, setWishlistRefresh, wishlistError } =
     useContext(AppContext);
 
   const handleRefresh = () => {
@@ -38,10 +38,14 @@ export default function Wishlist() {
             </Grid>
           ))}
         </Grid>
-        {wishlist.length === 0 && (
-          <Typography className="wishlist-empty">
-            No games on your BGG wishlist yet.
-          </Typography>
+        {wishlistError ? (
+          <Typography className="wishlist-error">{wishlistError}</Typography>
+        ) : (
+          wishlist.length === 0 && (
+            <Typography className="wishlist-empty">
+              No games on your BGG wishlist yet.
+            </Typography>
+          )
         )}
       </Box>
     </>

@@ -36,3 +36,9 @@
   margin-top: 48px !important;
   text-align: center;
 }
+
+.wishlist-error {
+  color: #e57373;
+  margin-top: 48px !important;
+  text-align: center;
+}
