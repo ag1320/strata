@@ -2,7 +2,14 @@ import CONFIG from "../../config.js";
 import React, { useEffect, useState, useContext, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppContext } from "../../AppContext.js";
-import { Grid, Box, Button, Typography, Stack } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Typography,
+  Stack,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import logo from "../../images/strata-logo.png";
 import GameCard from "./GameCard.js";
 import "../../styling/MyCollection.css";
@@ -178,13 +185,13 @@ const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
               buttons fighting for ~195px on a 390px phone - stack full-width
               below `sm`. */}
           <Grid item xs={12} sm={6}>
-            <Stack direction={"row"} spacing={2}>
-              <Button
-                onClick={updateCollection}
-                variant="contained"
-                className="update-button"
-                endIcon={
-                  !showCheckmark && !showEx ? (
+            <Stack direction={"row"} spacing={1}>
+              <Tooltip title="Sync Collection">
+                <IconButton
+                  onClick={updateCollection}
+                  className="update-icon-button"
+                >
+                  {!showCheckmark && !showEx ? (
                     <SyncIcon
                       className={`sync-icon ${isSyncing ? "syncing" : ""}`}
                     />
@@ -192,19 +199,17 @@ const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
                     <CheckIcon className="check-icon" />
                   ) : (
                     <PriorityHighIcon className="exclamation-icon" />
-                  )
-                }
-              >
-                Sync Collection
-              </Button>
-              <Button
-                onClick={handleOpenEditRankingsModal}
-                variant="contained"
-                className="update-button"
-                endIcon={<Filter1Icon />}
-              >
-                Edit Rankings
-              </Button>
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Edit Rankings">
+                <IconButton
+                  onClick={handleOpenEditRankingsModal}
+                  className="update-icon-button"
+                >
+                  <Filter1Icon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} alignItems="flex-end">

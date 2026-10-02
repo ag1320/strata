@@ -19,6 +19,18 @@
   color: white;
 }
 
+/* Sync Collection / Edit Rankings, converted from full-text buttons to
+   icon buttons (2026-10-02) so they take up a fraction of the space on a
+   phone - same dark-chip look as the text buttons had, just circular. */
+.update-icon-button {
+  background-color: #2F4858;
+  color: white;
+}
+
+.update-icon-button:hover {
+  background-color: #3d5f73;
+}
+
 .check-icon {
   fill: green;
 }

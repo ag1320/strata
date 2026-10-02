@@ -3,21 +3,19 @@ import AttributeFilterChips from "./AttributeFilterChips";
 import {
   Grid,
   InputBase,
-  Chip,
   Typography,
   Stack,
   Switch,
   Badge,
-  FormControl,
-  InputLabel,
-  Select,
+  Menu,
   MenuItem,
-  Box,
   IconButton,
   Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
+import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import SortIcon from "@mui/icons-material/Sort";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
@@ -26,6 +24,12 @@ import MyCollectionFiltersModal from "./MyCollectionFiltersModal";
 import CasinoIcon from "@mui/icons-material/Casino";
 import ClearIcon from '@mui/icons-material/Clear';
 
+const SORT_LABELS = {
+  rank: "Rank",
+  playingTime: "Play Time",
+  minPlayers: "Minimum Players",
+  maxPlayers: "Maximum Players",
+};
 
 const MyCollectionFilters = ({
   attributeFilterChips,
@@ -49,11 +53,18 @@ const MyCollectionFilters = ({
   let [searchQuery, setSearchQuery] = useState(
     debouncedQuery ? debouncedQuery : ""
   );
+  // Sort used to be a visible <Select> with its own "Sort By" label - now a
+  // single icon that opens this menu, so the row reads as a cluster of
+  // compact actions instead of competing for space with the search bar.
+  const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
-  const handleSortChange = (e) => {
-    setSort(e.target.value);
+  const handleOpenSortMenu = (event) => setSortMenuAnchor(event.currentTarget);
+  const handleCloseSortMenu = () => setSortMenuAnchor(null);
+  const handleSortChange = (value) => {
+    setSort(value);
+    handleCloseSortMenu();
   };
 
   const handleFilterFavorite = () => {
@@ -159,104 +170,16 @@ const MyCollectionFilters = ({
           </>
         )}
         <>
-          {/* Redesigned 2026-10-02: the old version wrapped 5 loose items
-              (Filters/Clear chips, a 200px-min-width Sort box, a direction
-              icon, a favorite icon) via generic Grid flex-wrap, and put the
-              randomize dice in its own Stack next to a 70%-width search box
-              under `justify-content: flex-end` - on a phone that left a
-              hollow gap before the dice+search pair, and the favorite icon
-              landing alone on whichever line it wrapped to. Replaced with
-              three deliberate rows: chips, then sort+icon-actions grouped
-              together, then a full-width search bar. */}
-          <Grid item xs={12} sm={6}>
-            <Stack
-              direction="row"
-              spacing={1}
-              flexWrap="wrap"
-              className="filter-chips-row"
-            >
-              <Badge badgeContent={numFilters} className="custom-badge">
-                <Chip
-                  label={"Filters"}
-                  variant="outlined"
-                  className="open-filter-modal-chip"
-                  onClick={handleOpenModal}
-                  icon={<TuneIcon className="tune-icon" />}
-                />
-              </Badge>
-              <Chip
-                label={"Clear All Filters"}
-                variant="outlined"
-                className="clear-filters-chip"
-                onClick={handleClearFilters}
-              />
-            </Stack>
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              className="sort-controls-row"
-            >
-              <Box className="sort-box">
-                <FormControl fullWidth className="form-control">
-                  <InputLabel
-                    id="demo-simple-select-label"
-                    className="input-label"
-                  >
-                    Sort By
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={sort}
-                    label="Sort"
-                    onChange={handleSortChange}
-                    className="select"
-                  >
-                    <MenuItem value={"rank"} className="menu-item">
-                      Rank
-                    </MenuItem>
-                    <MenuItem value={"playingTime"} className="menu-item">
-                      Play Time
-                    </MenuItem>
-                    <MenuItem value={"minPlayers"} className="menu-item">
-                      Minimum Players
-                    </MenuItem>
-                    <MenuItem value={"maxPlayers"} className="menu-item">
-                      Maximum Players
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-              <Tooltip
-                title={`${isAscending ? "Ascending" : "Descending"}`}
-                placement="top"
-              >
-                <IconButton onClick={handleSortOrderChange}>
-                  {isAscending ? (
-                    <NorthIcon className="sort-order-icon" />
-                  ) : (
-                    <SouthIcon className="sort-order-icon" />
-                  )}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Show Favorites" placement="top">
-                <IconButton onClick={handleFilterFavorite}>
-                  <FavoriteIcon
-                    className={`favorite-filter-icon ${
-                      favoriteFilter ? "clicked" : ""
-                    }`}
-                  />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Choose Random Game" placement="top">
-                <IconButton onClick={handleGetRandom}>
-                  <CasinoIcon className="randomize-dice" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} sm={6} className="search-container">
+          {/* Redesigned again 2026-10-02 per feedback on the first pass:
+              Filters/Clear All Filters/Sort By were still three separate
+              text controls competing with the search bar for attention.
+              All three are now icons (Sort opens a menu instead of showing
+              a visible dropdown), joined in one compact row alongside the
+              direction/favorite/dice icons that were already icon-only -
+              the search bar is the only thing on the page with a visible
+              text label now, and gets its own full-width row above this
+              one so it reads as the primary action. */}
+          <Grid item xs={12} className="search-container">
             <div className="search">
               <InputBase
                 placeholder="Search (by name, artists, keywords, etc.)…"
@@ -276,6 +199,80 @@ const MyCollectionFilters = ({
                 <SearchIcon />
               </IconButton>
             </div>
+          </Grid>
+          <Grid item xs={12}>
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              className="filter-icons-row"
+            >
+              <Tooltip title="Filters">
+                <Badge badgeContent={numFilters} className="custom-badge">
+                  <IconButton
+                    onClick={handleOpenModal}
+                    className="filter-icon-button"
+                  >
+                    <TuneIcon className="tune-icon" />
+                  </IconButton>
+                </Badge>
+              </Tooltip>
+              <Tooltip title="Clear All Filters">
+                <IconButton
+                  onClick={handleClearFilters}
+                  className="filter-icon-button"
+                >
+                  <FilterAltOffIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={`Sort By: ${SORT_LABELS[sort] || "Rank"}`}>
+                <IconButton
+                  onClick={handleOpenSortMenu}
+                  className="filter-icon-button"
+                >
+                  <SortIcon />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={sortMenuAnchor}
+                open={Boolean(sortMenuAnchor)}
+                onClose={handleCloseSortMenu}
+              >
+                {Object.entries(SORT_LABELS).map(([value, label]) => (
+                  <MenuItem
+                    key={value}
+                    className="menu-item"
+                    selected={value === sort}
+                    onClick={() => handleSortChange(value)}
+                  >
+                    {label}
+                  </MenuItem>
+                ))}
+              </Menu>
+              <Tooltip title={`${isAscending ? "Ascending" : "Descending"}`}>
+                <IconButton onClick={handleSortOrderChange}>
+                  {isAscending ? (
+                    <NorthIcon className="sort-order-icon" />
+                  ) : (
+                    <SouthIcon className="sort-order-icon" />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Show Favorites">
+                <IconButton onClick={handleFilterFavorite}>
+                  <FavoriteIcon
+                    className={`favorite-filter-icon ${
+                      favoriteFilter ? "clicked" : ""
+                    }`}
+                  />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Choose Random Game">
+                <IconButton onClick={handleGetRandom}>
+                  <CasinoIcon className="randomize-dice" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           </Grid>
 
           <Grid item xs={12}>

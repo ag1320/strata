@@ -5,29 +5,18 @@
   align-items: flex-end;
 }
 
-/* Row 1: the two filter chips. */
-.filter-chips-row {
-  margin-bottom: 8px;
+/* Redesigned 2026-10-02: Filters/Clear All Filters/Sort By moved from text
+   chips + a visible dropdown to icon buttons (see MyCollectionFilters.js),
+   joined with the direction/favorite/dice icons that were already
+   icon-only into one row. The search bar gets its own full-width row above
+   this one instead of sharing space with any of these controls. */
+.filter-icons-row {
+  margin-top: 8px;
 }
 
-/* Row 2: sort dropdown + the three small icon actions (direction,
-   favorite, randomize) - grouped together instead of scattered, so none
-   of them end up wrapping to an orphaned line on a narrow screen. */
-.sort-controls-row {
-  margin-bottom: 8px;
-}
-
-.open-filter-modal-chip,
-.clear-filters-chip {
-  display: flex;
+.filter-icon-button,
+.tune-icon {
   color: white;
-  border-radius: 5px;
-  box-sizing: border-box;
-  height: 100%;
-}
-
-.tune-icon{
-  fill: white;
 }
 
 .ant-switch {
@@ -56,7 +45,7 @@
 
 .ant-switch .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
   opacity: 1;
-  background-color: #bba769; 
+  background-color: #bba769;
 }
 
 .ant-switch .MuiSwitch-thumb {
@@ -76,7 +65,7 @@
 
 .custom-badge .MuiBadge-badge {
   background-color: #bba769;
-  color: white; 
+  color: white;
 }
 
 .search-container{
@@ -91,11 +80,8 @@
   background-color: #2F4858;
   transition: background-color 0.3s;
   margin-left: 0;
-  /* Was 70% with the container right-aligned, which (now that the
-     randomize dice lives in the sort-controls row instead of next to this
-     box) left the search bar looking like it was floating with a chunk of
-     empty space next to it. Full width looks intentional at every size and
-     is also just a better target for the app's primary search action. */
+  /* Now the one prominent control in this toolbar - full width at every
+     size, everything else here is a compact icon by comparison. */
   width: 100%;
   box-sizing: border-box;
 }
@@ -126,7 +112,7 @@
 @media (min-width: 600px) {
   .inputInput {
 
-    width: 90%; 
+    width: 90%;
   }
 }
 
@@ -137,33 +123,8 @@
   background-color: white;
 }
 
-.sort-box {
-  /* Was a flat 200px min-width - on the narrowest real phones (~320px),
-     200px plus the three icon buttons beside it in .sort-controls-row
-     wouldn't fit on one line. Grows to fill the row's remaining space
-     instead of demanding a fixed amount, with a smaller floor on mobile. */
-  min-width: 120px;
-  flex-grow: 1;
-}
-
-@media (min-width: 600px) {
-  .sort-box {
-    min-width: 200px;
-    flex-grow: 0;
-  }
-}
-
-.form-control {
-  width: 100%;
-}
-
-.input-label {
-  color: #252728;
-}
-
-.select {
-  color: #fff;
-  background-color: #252728;
+.MuiList-root{
+  background-color: #2F4858;
 }
 
 .menu-item {
@@ -175,44 +136,9 @@
   background-color: #252728;
 }
 
-.menu-item:focus{
+.menu-item.Mui-selected,
+.menu-item.Mui-selected:hover {
   background-color: #52758b;
-}
-
-.select .MuiSelect-select:focus {
-  background-color: #252728;
-}
-
-.form-control .MuiFormLabel-root{
-  color: white;
-}
-
-.form-control .MuiInputLabel-root.Mui-focused {
-  color: #ffffff;
-}
-
-.form-control .MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
-  color: #ffffff;
-}
-
-.MuiList-root{
-  background-color: #2F4858;
-}
-
-.form-control .MuiFormLabel-root:focus{
-  color: white;
-}
-
-.select .MuiOutlinedInput-notchedOutline {
-  border-color: #fff;
-}
-
-.select:hover .MuiOutlinedInput-notchedOutline {
-  border-color: #fff;
-}
-
-.select.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #fff; 
 }
 
 .MuiSvgIcon-root{
