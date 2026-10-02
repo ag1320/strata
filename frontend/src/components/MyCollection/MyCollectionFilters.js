@@ -146,11 +146,14 @@ const MyCollectionFilters = ({
 
   // Shared between the mobile and desktop layouts below - direction,
   // favorite, and randomize were already icon-only in both, so there's no
-  // "mobile version" vs "desktop version" of these to maintain separately.
-  const quickActionIcons = (
+  // "mobile version" vs "desktop version" of these to maintain separately -
+  // just a size, so all six icons in the mobile row (these three plus
+  // Filters/Clear/Sort) are small enough to fit on one line even on a
+  // 320px-wide phone.
+  const renderQuickActionIcons = (size) => (
     <>
       <Tooltip title={`${isAscending ? "Ascending" : "Descending"}`}>
-        <IconButton onClick={handleSortOrderChange}>
+        <IconButton onClick={handleSortOrderChange} size={size}>
           {isAscending ? (
             <NorthIcon className="sort-order-icon" />
           ) : (
@@ -159,7 +162,7 @@ const MyCollectionFilters = ({
         </IconButton>
       </Tooltip>
       <Tooltip title="Show Favorites">
-        <IconButton onClick={handleFilterFavorite}>
+        <IconButton onClick={handleFilterFavorite} size={size}>
           <FavoriteIcon
             className={`favorite-filter-icon ${
               favoriteFilter ? "clicked" : ""
@@ -168,7 +171,7 @@ const MyCollectionFilters = ({
         </IconButton>
       </Tooltip>
       <Tooltip title="Choose Random Game">
-        <IconButton onClick={handleGetRandom}>
+        <IconButton onClick={handleGetRandom} size={size}>
           <CasinoIcon className="randomize-dice" />
         </IconButton>
       </Tooltip>
@@ -243,8 +246,8 @@ const MyCollectionFilters = ({
             <Grid item xs={12}>
               <Stack
                 direction="row"
-                spacing={1}
-                flexWrap="wrap"
+                spacing={0.5}
+                flexWrap="nowrap"
                 className="filter-icons-row"
               >
                 <Tooltip title="Filters">
@@ -252,6 +255,7 @@ const MyCollectionFilters = ({
                     <IconButton
                       onClick={handleOpenModal}
                       className="filter-icon-button"
+                      size="small"
                     >
                       <TuneIcon className="tune-icon" />
                     </IconButton>
@@ -261,6 +265,7 @@ const MyCollectionFilters = ({
                   <IconButton
                     onClick={handleClearFilters}
                     className="filter-icon-button"
+                    size="small"
                   >
                     <FilterAltOffIcon />
                   </IconButton>
@@ -269,6 +274,7 @@ const MyCollectionFilters = ({
                   <IconButton
                     onClick={handleOpenSortMenu}
                     className="filter-icon-button"
+                    size="small"
                   >
                     <SortIcon />
                   </IconButton>
@@ -289,7 +295,7 @@ const MyCollectionFilters = ({
                     </MenuItem>
                   ))}
                 </Menu>
-                {quickActionIcons}
+                {renderQuickActionIcons("small")}
               </Stack>
             </Grid>
             <Grid item xs={12} className="search-container">
@@ -353,7 +359,7 @@ const MyCollectionFilters = ({
                     </Select>
                   </FormControl>
                 </Box>
-                {quickActionIcons}
+                {renderQuickActionIcons()}
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} className="search-container">

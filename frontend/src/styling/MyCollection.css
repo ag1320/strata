@@ -1,6 +1,15 @@
 .my-collection{
-  padding: 25px;
+  /* Was a flat 25px regardless of screen size - stacked with two other
+     padding layers above it (MyCollectionTabBar.js), that left very little
+     actual width for content on a phone. Smaller on mobile. */
+  padding: 12px;
   justify-content: center;
+}
+
+@media (min-width: 600px) {
+  .my-collection{
+    padding: 25px;
+  }
 }
 
 

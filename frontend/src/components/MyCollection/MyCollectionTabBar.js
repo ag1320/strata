@@ -23,7 +23,11 @@ const TabPanel = ({ children, tabValue, index, ...other }) => {
       {...other}
     >
       {tabValue === index && (
-        <Box sx={{ p: 3 }}>
+        // p:3 (24px/side) stacked with the 95%-width wrapper below and
+        // .my-collection's own 25px padding left only ~270px of real
+        // content width on a 390px phone - three layers of padding, none
+        // of them aware of the others. Smaller on mobile.
+        <Box sx={{ p: { xs: 1, sm: 3 } }}>
           <Typography component={"span"}>{children}</Typography>
         </Box>
       )}
@@ -81,7 +85,7 @@ export default function MyCollectionTabBar() {
       <GetMyCollection />
       <GetPlayers/>
       <GetPlaySessions/>
-      <Box sx={{ width: "95%", margin: "auto" }}>
+      <Box sx={{ width: { xs: "100%", sm: "95%" }, margin: "auto" }}>
         <Box sx={{ borderBottom: 1, borderColor: "white" }}>
           <Tabs
             value={tabValue}
