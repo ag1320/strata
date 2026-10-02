@@ -5,11 +5,14 @@ import { AppContext } from "../../AppContext.js";
 import {
   Grid,
   Box,
+  Button,
   Typography,
   Stack,
   IconButton,
   Tooltip,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import logo from "../../images/strata-logo.png";
 import GameCard from "./GameCard.js";
 import "../../styling/MyCollection.css";
@@ -32,6 +35,10 @@ const EditRankingsModal = React.lazy(() => import("./EditRankingsModal"));
 //if adding more attributes, need to change all of these.
 
 const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
+  const theme = useTheme();
+  // Icon-only buttons are a mobile-specific redesign - desktop keeps the
+  // original labeled buttons.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   let [isSyncing, setIsSyncing] = useState(false);
   let [showCheckmark, setShowCheckmark] = useState(false);
   let [showEx, setShowEx] = useState(false);
@@ -183,33 +190,67 @@ const MyCollection = ({ handleLogPlayClick, handleSeePlays }) => {
         >
           {/* xs={6} with no larger-breakpoint override left two full-text
               buttons fighting for ~195px on a 390px phone - stack full-width
-              below `sm`. */}
+              below `sm`. Icon-only buttons below that are mobile-only;
+              desktop keeps the original labeled buttons. */}
           <Grid item xs={12} sm={6}>
-            <Stack direction={"row"} spacing={1}>
-              <Tooltip title="Sync Collection">
-                <IconButton
-                  onClick={updateCollection}
-                  className="update-icon-button"
-                >
-                  {!showCheckmark && !showEx ? (
-                    <SyncIcon
-                      className={`sync-icon ${isSyncing ? "syncing" : ""}`}
-                    />
-                  ) : showCheckmark ? (
-                    <CheckIcon className="check-icon" />
-                  ) : (
-                    <PriorityHighIcon className="exclamation-icon" />
-                  )}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Edit Rankings">
-                <IconButton
-                  onClick={handleOpenEditRankingsModal}
-                  className="update-icon-button"
-                >
-                  <Filter1Icon />
-                </IconButton>
-              </Tooltip>
+            <Stack direction={"row"} spacing={isMobile ? 1 : 2}>
+              {isMobile ? (
+                <>
+                  <Tooltip title="Sync Collection">
+                    <IconButton
+                      onClick={updateCollection}
+                      className="update-icon-button"
+                    >
+                      {!showCheckmark && !showEx ? (
+                        <SyncIcon
+                          className={`sync-icon ${isSyncing ? "syncing" : ""}`}
+                        />
+                      ) : showCheckmark ? (
+                        <CheckIcon className="check-icon" />
+                      ) : (
+                        <PriorityHighIcon className="exclamation-icon" />
+                      )}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit Rankings">
+                    <IconButton
+                      onClick={handleOpenEditRankingsModal}
+                      className="update-icon-button"
+                    >
+                      <Filter1Icon />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={updateCollection}
+                    variant="contained"
+                    className="update-button"
+                    endIcon={
+                      !showCheckmark && !showEx ? (
+                        <SyncIcon
+                          className={`sync-icon ${isSyncing ? "syncing" : ""}`}
+                        />
+                      ) : showCheckmark ? (
+                        <CheckIcon className="check-icon" />
+                      ) : (
+                        <PriorityHighIcon className="exclamation-icon" />
+                      )
+                    }
+                  >
+                    Sync Collection
+                  </Button>
+                  <Button
+                    onClick={handleOpenEditRankingsModal}
+                    variant="contained"
+                    className="update-button"
+                    endIcon={<Filter1Icon />}
+                  >
+                    Edit Rankings
+                  </Button>
+                </>
+              )}
             </Stack>
           </Grid>
           <Grid item xs={12} sm={6} alignItems="flex-end">

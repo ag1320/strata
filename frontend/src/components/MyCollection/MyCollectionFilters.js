@@ -3,15 +3,22 @@ import AttributeFilterChips from "./AttributeFilterChips";
 import {
   Grid,
   InputBase,
+  Chip,
   Typography,
   Stack,
   Switch,
   Badge,
+  FormControl,
+  InputLabel,
+  Select,
   Menu,
   MenuItem,
+  Box,
   IconButton,
   Tooltip,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
@@ -48,14 +55,19 @@ const MyCollectionFilters = ({
   setDebouncedQuery,
   debouncedQuery,
 }) => {
+  const theme = useTheme();
+  // Icon-only controls are a mobile-specific redesign (see render below) -
+  // desktop keeps the original text chips + labeled dropdown, there's
+  // plenty of width for them there and they were never the problem.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   let [openModal, setOpenModal] = useState(false);
   let [numFilters, setNumFilters] = useState(0);
   let [searchQuery, setSearchQuery] = useState(
     debouncedQuery ? debouncedQuery : ""
   );
-  // Sort used to be a visible <Select> with its own "Sort By" label - now a
-  // single icon that opens this menu, so the row reads as a cluster of
-  // compact actions instead of competing for space with the search bar.
+  // Only used on mobile, where Sort is an icon that opens this menu instead
+  // of a visible <Select>.
   const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
 
   const handleOpenModal = () => setOpenModal(true);
@@ -132,6 +144,59 @@ const MyCollectionFilters = ({
     };
   }, [searchQuery]);
 
+  // Shared between the mobile and desktop layouts below - direction,
+  // favorite, and randomize were already icon-only in both, so there's no
+  // "mobile version" vs "desktop version" of these to maintain separately.
+  const quickActionIcons = (
+    <>
+      <Tooltip title={`${isAscending ? "Ascending" : "Descending"}`}>
+        <IconButton onClick={handleSortOrderChange}>
+          {isAscending ? (
+            <NorthIcon className="sort-order-icon" />
+          ) : (
+            <SouthIcon className="sort-order-icon" />
+          )}
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Show Favorites">
+        <IconButton onClick={handleFilterFavorite}>
+          <FavoriteIcon
+            className={`favorite-filter-icon ${
+              favoriteFilter ? "clicked" : ""
+            }`}
+          />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Choose Random Game">
+        <IconButton onClick={handleGetRandom}>
+          <CasinoIcon className="randomize-dice" />
+        </IconButton>
+      </Tooltip>
+    </>
+  );
+
+  const searchBar = (
+    <div className="search">
+      <InputBase
+        placeholder="Search (by name, artists, keywords, etc.)…"
+        className="inputRoot inputInput"
+        inputProps={{ "aria-label": "search" }}
+        value={searchQuery}
+        onChange={handleSearchChange}
+        autoFocus
+        style={{ flex: 1 }}
+      />
+      {searchQuery && (
+        <IconButton onClick={() => setSearchQuery("")} size="small">
+          <ClearIcon />
+        </IconButton>
+      )}
+      <IconButton>
+        <SearchIcon />
+      </IconButton>
+    </div>
+  );
+
   return (
     <>
       <MyCollectionFiltersModal
@@ -169,116 +234,137 @@ const MyCollectionFilters = ({
             </Grid>
           </>
         )}
-        <>
-          {/* Redesigned again 2026-10-02 per feedback on the first pass:
-              Filters/Clear All Filters/Sort By were still three separate
-              text controls competing with the search bar for attention.
-              All three are now icons (Sort opens a menu instead of showing
-              a visible dropdown), joined in one compact row alongside the
-              direction/favorite/dice icons that were already icon-only -
-              the search bar is the only thing on the page with a visible
-              text label now, and gets its own full-width row above this
-              one so it reads as the primary action. */}
-          <Grid item xs={12} className="search-container">
-            <div className="search">
-              <InputBase
-                placeholder="Search (by name, artists, keywords, etc.)…"
-                className="inputRoot inputInput"
-                inputProps={{ "aria-label": "search" }}
-                value={searchQuery}
-                onChange={handleSearchChange}
-                autoFocus
-                style={{ flex: 1 }}
-              />
-              {searchQuery && (
-                <IconButton onClick={() => setSearchQuery("")} size="small">
-                  <ClearIcon />
-                </IconButton>
-              )}
-              <IconButton>
-                <SearchIcon />
-              </IconButton>
-            </div>
-          </Grid>
-          <Grid item xs={12}>
-            <Stack
-              direction="row"
-              spacing={1}
-              flexWrap="wrap"
-              className="filter-icons-row"
-            >
-              <Tooltip title="Filters">
-                <Badge badgeContent={numFilters} className="custom-badge">
+
+        {isMobile ? (
+          <>
+            {/* Mobile: icons row first, search below it - a row of
+                compact controls reads better above the thing you're about
+                to type into than below it. */}
+            <Grid item xs={12}>
+              <Stack
+                direction="row"
+                spacing={1}
+                flexWrap="wrap"
+                className="filter-icons-row"
+              >
+                <Tooltip title="Filters">
+                  <Badge badgeContent={numFilters} className="custom-badge">
+                    <IconButton
+                      onClick={handleOpenModal}
+                      className="filter-icon-button"
+                    >
+                      <TuneIcon className="tune-icon" />
+                    </IconButton>
+                  </Badge>
+                </Tooltip>
+                <Tooltip title="Clear All Filters">
                   <IconButton
-                    onClick={handleOpenModal}
+                    onClick={handleClearFilters}
                     className="filter-icon-button"
                   >
-                    <TuneIcon className="tune-icon" />
+                    <FilterAltOffIcon />
                   </IconButton>
-                </Badge>
-              </Tooltip>
-              <Tooltip title="Clear All Filters">
-                <IconButton
-                  onClick={handleClearFilters}
-                  className="filter-icon-button"
-                >
-                  <FilterAltOffIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={`Sort By: ${SORT_LABELS[sort] || "Rank"}`}>
-                <IconButton
-                  onClick={handleOpenSortMenu}
-                  className="filter-icon-button"
-                >
-                  <SortIcon />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                anchorEl={sortMenuAnchor}
-                open={Boolean(sortMenuAnchor)}
-                onClose={handleCloseSortMenu}
-              >
-                {Object.entries(SORT_LABELS).map(([value, label]) => (
-                  <MenuItem
-                    key={value}
-                    className="menu-item"
-                    selected={value === sort}
-                    onClick={() => handleSortChange(value)}
+                </Tooltip>
+                <Tooltip title={`Sort By: ${SORT_LABELS[sort] || "Rank"}`}>
+                  <IconButton
+                    onClick={handleOpenSortMenu}
+                    className="filter-icon-button"
                   >
-                    {label}
-                  </MenuItem>
-                ))}
-              </Menu>
-              <Tooltip title={`${isAscending ? "Ascending" : "Descending"}`}>
-                <IconButton onClick={handleSortOrderChange}>
-                  {isAscending ? (
-                    <NorthIcon className="sort-order-icon" />
-                  ) : (
-                    <SouthIcon className="sort-order-icon" />
-                  )}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Show Favorites">
-                <IconButton onClick={handleFilterFavorite}>
-                  <FavoriteIcon
-                    className={`favorite-filter-icon ${
-                      favoriteFilter ? "clicked" : ""
-                    }`}
+                    <SortIcon />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  anchorEl={sortMenuAnchor}
+                  open={Boolean(sortMenuAnchor)}
+                  onClose={handleCloseSortMenu}
+                >
+                  {Object.entries(SORT_LABELS).map(([value, label]) => (
+                    <MenuItem
+                      key={value}
+                      className="menu-item"
+                      selected={value === sort}
+                      onClick={() => handleSortChange(value)}
+                    >
+                      {label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+                {quickActionIcons}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} className="search-container">
+              {searchBar}
+            </Grid>
+          </>
+        ) : (
+          <>
+            {/* Desktop: original text chips + labeled dropdown, side by
+                side with the search bar - unchanged from before any of
+                this mobile work started. */}
+            <Grid item xs={12} sm={6}>
+              <Stack direction="row" spacing={1} className="filter-chips-row">
+                <Badge badgeContent={numFilters} className="custom-badge">
+                  <Chip
+                    label={"Filters"}
+                    variant="outlined"
+                    className="open-filter-modal-chip"
+                    onClick={handleOpenModal}
+                    icon={<TuneIcon className="tune-icon" />}
                   />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Choose Random Game">
-                <IconButton onClick={handleGetRandom}>
-                  <CasinoIcon className="randomize-dice" />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </Grid>
+                </Badge>
+                <Chip
+                  label={"Clear All Filters"}
+                  variant="outlined"
+                  className="clear-filters-chip"
+                  onClick={handleClearFilters}
+                />
+              </Stack>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                className="sort-controls-row"
+              >
+                <Box className="sort-box">
+                  <FormControl fullWidth className="form-control">
+                    <InputLabel
+                      id="demo-simple-select-label"
+                      className="input-label"
+                    >
+                      Sort By
+                    </InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={sort}
+                      label="Sort"
+                      onChange={(e) => handleSortChange(e.target.value)}
+                      className="select"
+                    >
+                      {Object.entries(SORT_LABELS).map(([value, label]) => (
+                        <MenuItem
+                          key={value}
+                          value={value}
+                          className="menu-item"
+                        >
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+                {quickActionIcons}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} sm={6} className="search-container">
+              {searchBar}
+            </Grid>
+          </>
+        )}
 
-          <Grid item xs={12}>
-            <div className="line"></div>
-          </Grid>
-        </>
+        <Grid item xs={12}>
+          <div className="line"></div>
+        </Grid>
       </Grid>
     </>
   );

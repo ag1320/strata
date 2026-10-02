@@ -5,11 +5,77 @@
   align-items: flex-end;
 }
 
-/* Redesigned 2026-10-02: Filters/Clear All Filters/Sort By moved from text
-   chips + a visible dropdown to icon buttons (see MyCollectionFilters.js),
-   joined with the direction/favorite/dice icons that were already
-   icon-only into one row. The search bar gets its own full-width row above
-   this one instead of sharing space with any of these controls. */
+/* --- Desktop: text chips + labeled Sort dropdown (unchanged from before
+   the mobile work) --- */
+
+.filter-chips-row {
+  margin-bottom: 8px;
+}
+
+.sort-controls-row {
+  margin-bottom: 8px;
+}
+
+.open-filter-modal-chip,
+.clear-filters-chip {
+  display: flex;
+  color: white;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.sort-box {
+  min-width: 200px;
+}
+
+.form-control {
+  width: 100%;
+}
+
+.input-label {
+  color: #252728;
+}
+
+.select {
+  color: #fff;
+  background-color: #252728;
+}
+
+.select .MuiSelect-select:focus {
+  background-color: #252728;
+}
+
+.form-control .MuiFormLabel-root{
+  color: white;
+}
+
+.form-control .MuiInputLabel-root.Mui-focused {
+  color: #ffffff;
+}
+
+.form-control .MuiInputLabel-root.Mui-focused.MuiInputLabel-shrink {
+  color: #ffffff;
+}
+
+.form-control .MuiFormLabel-root:focus{
+  color: white;
+}
+
+.select .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+.select:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+.select.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #fff;
+}
+
+/* --- Mobile: icon-only Filters/Clear/Sort, consolidated into one row --- */
+
 .filter-icons-row {
   margin-top: 8px;
 }
@@ -18,6 +84,8 @@
 .tune-icon {
   color: white;
 }
+
+/* --- Shared: the AND/OR attribute-filter switch --- */
 
 .ant-switch {
   width: 28px;
@@ -68,6 +136,8 @@
   color: white;
 }
 
+/* --- Shared: search bar --- */
+
 .search-container{
   display: flex;
 }
@@ -80,8 +150,6 @@
   background-color: #2F4858;
   transition: background-color 0.3s;
   margin-left: 0;
-  /* Now the one prominent control in this toolbar - full width at every
-     size, everything else here is a compact icon by comparison. */
   width: 100%;
   box-sizing: border-box;
 }
@@ -123,6 +191,9 @@
   background-color: white;
 }
 
+/* --- Shared: the Sort popup, whether opened from the mobile icon's Menu
+   or the desktop Select's dropdown --- */
+
 .MuiList-root{
   background-color: #2F4858;
 }
@@ -137,7 +208,8 @@
 }
 
 .menu-item.Mui-selected,
-.menu-item.Mui-selected:hover {
+.menu-item.Mui-selected:hover,
+.menu-item:focus {
   background-color: #52758b;
 }
 
