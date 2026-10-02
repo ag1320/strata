@@ -5,12 +5,16 @@
   align-items: flex-end;
 }
 
-.filter-chips-container {
-  align-items: stretch;
+/* Row 1: the two filter chips. */
+.filter-chips-row {
+  margin-bottom: 8px;
 }
 
-.filter-chips-grid-item {
-  display: flex;
+/* Row 2: sort dropdown + the three small icon actions (direction,
+   favorite, randomize) - grouped together instead of scattered, so none
+   of them end up wrapping to an orphaned line on a narrow screen. */
+.sort-controls-row {
+  margin-bottom: 8px;
 }
 
 .open-filter-modal-chip,
@@ -77,17 +81,23 @@
 
 .search-container{
   display: flex;
-  justify-content: flex-end;
 }
 
 .search {
   display: flex;
+  align-items: center;
   position: relative;
   border-radius: 6px;
   background-color: #2F4858;
   transition: background-color 0.3s;
   margin-left: 0;
-  width: 70%;
+  /* Was 70% with the container right-aligned, which (now that the
+     randomize dice lives in the sort-controls row instead of next to this
+     box) left the search bar looking like it was floating with a chunk of
+     empty space next to it. Full width looks intentional at every size and
+     is also just a better target for the app's primary search action. */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search:hover {
@@ -128,7 +138,19 @@
 }
 
 .sort-box {
-  min-width: 200px;
+  /* Was a flat 200px min-width - on the narrowest real phones (~320px),
+     200px plus the three icon buttons beside it in .sort-controls-row
+     wouldn't fit on one line. Grows to fill the row's remaining space
+     instead of demanding a fixed amount, with a smaller floor on mobile. */
+  min-width: 120px;
+  flex-grow: 1;
+}
+
+@media (min-width: 600px) {
+  .sort-box {
+    min-width: 200px;
+    flex-grow: 0;
+  }
 }
 
 .form-control {
